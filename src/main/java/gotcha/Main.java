@@ -1,4 +1,4 @@
-package gatcha;
+package gotcha;
 
 import gotcha.ui.AuthScreen;
 import javax.swing.*;

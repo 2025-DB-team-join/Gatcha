@@ -1,6 +1,6 @@
 package gotcha.ui;
 
-import gatcha.Main;
+import gotcha.Main;
 import gotcha.common.FontLoader;
 
 import javax.swing.*;

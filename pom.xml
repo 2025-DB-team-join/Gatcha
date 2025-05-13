@@ -37,7 +37,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>gatcha.Main</mainClass> <!-- ⚠ 네 프로젝트 기준 -->
+                            <mainClass>gotcha.Main</mainClass> <!-- ⚠ 네 프로젝트 기준 -->
                         </manifest>
                     </archive>
                 </configuration>
