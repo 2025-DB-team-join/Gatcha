@@ -1,3 +1,5 @@
+package gatcha.common;
+
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;

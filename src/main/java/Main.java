@@ -1,42 +1,63 @@
+package gatcha;
+
+import gatcha.common.FontLoader;
+import gatcha.ui.AuthScreen;
 import javax.swing.*;
 import java.awt.*;
 
 public class Main {
+    public static JFrame frame;
+
     public static void main(String[] args) {
-        // 초기 소개 화면 프레임
-        JFrame introFrame = new JFrame("Gatcha!");
-        introFrame.setSize(800, 600);
-        introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        introFrame.setLayout(new BorderLayout());
+        SwingUtilities.invokeLater(() -> {
+            // 인트로 화면 구성
+            JFrame introFrame = new JFrame("Gatcha!");
+            introFrame.setSize(800, 600);
+            introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            introFrame.setLayout(new BorderLayout());
 
-        JLabel introLabel = new JLabel("1인 가구를 위한 소모임 플랫폼 Gatcha!", SwingConstants.CENTER);
-        introLabel.setFont(FontLoader.loadCustomFont(28f));
-        introFrame.add(introLabel, BorderLayout.CENTER);
+            // 왼쪽: 이미지
+            ImageIcon icon = new ImageIcon(Main.class.getResource("/images/gatchi.png"));
+            Image scaledImage = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH); // ← 여기서 크기 조절
+            ImageIcon resizedIcon = new ImageIcon(scaledImage);
+            JLabel imageLabel = new JLabel(resizedIcon);
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        introFrame.setLocationRelativeTo(null); // 화면 중앙 정렬
-        introFrame.setVisible(true);
+            // 오른쪽: 텍스트
+            JLabel textLabel = new JLabel("1인 가구를 위한 소모임 플랫폼 Gatcha!", SwingConstants.LEFT);
+            textLabel.setFont(FontLoader.loadCustomFont(24f));
 
-        // 3초 후 메인 화면으로 전환
-        Timer timer = new Timer(3000, e -> {
-            introFrame.dispose(); // 인트로 화면 닫기
-            showMainUI();         // 메인 화면 표시
+            // 중앙 패널
+            JPanel contentPanel = new JPanel(new BorderLayout());
+            contentPanel.add(imageLabel, BorderLayout.WEST);
+            contentPanel.add(textLabel, BorderLayout.CENTER);
+            contentPanel.setBorder(BorderFactory.createEmptyBorder(100, 50, 100, 50));
+
+            introFrame.add(contentPanel, BorderLayout.CENTER);
+            introFrame.setLocationRelativeTo(null);
+            introFrame.setVisible(true);
+
+            // 3초 후 로그인 화면으로 전환
+            Timer timer = new Timer(3000, e -> {
+                introFrame.dispose(); // 인트로 종료
+
+                frame = new JFrame("Gatcha!");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(800, 600);
+                frame.setLocationRelativeTo(null);
+
+                frame.setContentPane(new AuthScreen()); // 로그인 화면 표시
+                frame.setVisible(true);
+            });
+            timer.setRepeats(false);
+            timer.start();
         });
-        timer.setRepeats(false); // 1회만 실행
-        timer.start();
     }
 
-    // 메인 UI (버튼 있는 창)
-    public static void showMainUI() {
-        JFrame frame = new JFrame("Gatcha!");
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JButton button = new JButton("같이 해요!");
-        button.setFont(FontLoader.loadCustomFont(20f));
-        frame.add(button);
-
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+    // 화면 전환 메서드
+    public static void setScreen(JPanel panel) {
+        frame.setContentPane(panel);
+        frame.revalidate();
+        frame.repaint();
     }
 }
-
