@@ -1,8 +1,7 @@
-package gatcha.ui;
+package gotcha.ui;
 
 import gatcha.Main;
-import gatcha.ui.HomeScreen;
-import gatcha.common.FontLoader;
+import gotcha.common.FontLoader;
 
 import javax.swing.*;
 import java.awt.*;

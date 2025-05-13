@@ -1,7 +1,6 @@
 package gatcha;
 
-import gatcha.common.FontLoader;
-import gatcha.ui.AuthScreen;
+import gotcha.ui.AuthScreen;
 import javax.swing.*;
 import java.awt.*;
 

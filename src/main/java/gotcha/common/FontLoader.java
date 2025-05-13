@@ -1,4 +1,4 @@
-package gatcha.common;
+package gotcha.common;
 
 import java.awt.*;
 import java.io.IOException;

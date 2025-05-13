@@ -1,4 +1,4 @@
-package gatcha.ui;
+package gotcha.ui;
 
 public class GroupScreen {
 }
