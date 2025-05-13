@@ -16,24 +16,14 @@ public class Main {
             introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             introFrame.setLayout(new BorderLayout());
 
-            // 왼쪽: 이미지
-            ImageIcon icon = new ImageIcon(Main.class.getResource("/images/gatchi.png"));
-            Image scaledImage = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH); // ← 여기서 크기 조절
-            ImageIcon resizedIcon = new ImageIcon(scaledImage);
-            JLabel imageLabel = new JLabel(resizedIcon);
+            ImageIcon icon = new ImageIcon(Main.class.getResource("/images/onboarding.png"));
+            Image scaledImage = icon.getImage().getScaledInstance(800, 600, Image.SCALE_SMOOTH); // 프레임 크기에 맞게 조절
+            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
             imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            imageLabel.setVerticalAlignment(SwingConstants.CENTER);
 
-            // 오른쪽: 텍스트
-            JLabel textLabel = new JLabel("1인 가구를 위한 소모임 플랫폼 Gatcha!", SwingConstants.LEFT);
-            textLabel.setFont(FontLoader.loadCustomFont(24f));
+            introFrame.add(imageLabel, BorderLayout.CENTER);
 
-            // 중앙 패널
-            JPanel contentPanel = new JPanel(new BorderLayout());
-            contentPanel.add(imageLabel, BorderLayout.WEST);
-            contentPanel.add(textLabel, BorderLayout.CENTER);
-            contentPanel.setBorder(BorderFactory.createEmptyBorder(100, 50, 100, 50));
-
-            introFrame.add(contentPanel, BorderLayout.CENTER);
             introFrame.setLocationRelativeTo(null);
             introFrame.setVisible(true);
 
