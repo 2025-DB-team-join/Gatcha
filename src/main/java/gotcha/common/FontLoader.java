@@ -14,7 +14,7 @@ public class FontLoader {
             return font.deriveFont(size);
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
-            return new Font("SansSerif", Font.PLAIN, (int) size);  // fallback font
+            return new Font("SansSerif", Font.PLAIN, (int) size);
         }
     }
 }

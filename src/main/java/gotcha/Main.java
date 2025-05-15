@@ -1,13 +1,23 @@
 package gotcha;
 
+import gotcha.common.DBConnector;
 import gotcha.ui.AuthScreen;
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
 
 public class Main {
     public static JFrame frame;
 
     public static void main(String[] args) {
+
+        Connection conn = DBConnector.getConnection();
+        if (conn != null) {
+            System.out.println("🎉 DB 연결 성공");
+        } else {
+            System.out.println("❌ DB 연결 실패");
+        }
+
         SwingUtilities.invokeLater(() -> {
             // 인트로 화면 구성
             JFrame introFrame = new JFrame("Gatcha!");
