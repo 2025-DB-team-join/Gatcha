@@ -1,6 +1,7 @@
 package gotcha;
 
 import gotcha.common.DBConnector;
+import gotcha.common.FontLoader;
 import gotcha.ui.AuthScreen;
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,7 @@ public class Main {
     public static JFrame frame;
 
     public static void main(String[] args) {
-
+        FontLoader.applyGlobalFont(14f);
         Connection conn = DBConnector.getConnection();
         if (conn != null) {
             System.out.println("🎉 DB 연결 성공");

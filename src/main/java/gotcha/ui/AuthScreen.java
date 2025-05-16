@@ -8,6 +8,7 @@ import java.awt.*;
 
 public class AuthScreen extends JPanel {
     public AuthScreen() {
+        FontLoader.applyGlobalFont(14f);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200)); // 여백
 
