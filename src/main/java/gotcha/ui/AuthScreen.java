@@ -87,7 +87,7 @@ public class AuthScreen extends JPanel {
 
             // username
             JTextField usernameField = new JTextField(15);
-            add(labeledField("사용자명:", usernameField));
+            add(labeledField("이름:", usernameField));
 
             // nickname
             JTextField nicknameField = new JTextField(15);
