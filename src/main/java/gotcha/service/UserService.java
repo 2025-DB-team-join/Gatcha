@@ -13,4 +13,8 @@ public class UserService {
         if (userDAO.emailExists(email)) return false;
         return userDAO.register(username, nickname, password, email, gender, region, birthyear);
     }
+
+    public int getUserIdByEmail(String email) {
+        return userDAO.findUserIdByEmail(email);
+    }
 }

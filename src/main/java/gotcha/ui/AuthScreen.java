@@ -152,8 +152,13 @@ public class AuthScreen extends JPanel {
                 );
 
                 if (success) {
-                    JOptionPane.showMessageDialog(this, "회원가입 성공! 로그인 해주세요.");
-                    cardLayout.show(cardPanel, "LOGIN");
+                    int userId = userService.getUserIdByEmail(email);
+
+                    if (userId != -1) {
+                        Main.setScreen(new TagSelectionScreen(userId)); // 태그 선택 화면으로 이동
+                    } else {
+                        JOptionPane.showMessageDialog(this, "user 정보를 찾을 수 없습니다.");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "회원가입 실패: 이미 사용 중인 이메일입니다.");
                 }
