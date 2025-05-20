@@ -13,6 +13,7 @@ public class AuthScreen extends JPanel {
     private final UserService userService = new UserService();
 
     public AuthScreen() {
+        FontLoader.applyGlobalFont(14f);
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -184,5 +185,4 @@ public class AuthScreen extends JPanel {
             return panel;
         }
     }
-
 }
