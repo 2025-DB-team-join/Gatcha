@@ -28,32 +28,54 @@ public class AuthScreen extends JPanel {
     // 로그인 화면
     private class LoginPanel extends JPanel {
         public LoginPanel() {
-            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-            setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
+            setLayout(new BorderLayout());
 
-            JLabel title = new JLabel("로그인", SwingConstants.CENTER);
+            ImageIcon icon = new ImageIcon(getClass().getResource("/images/onboarding2.png"));
+            Image scaledImage = icon.getImage().getScaledInstance(800, 200, Image.SCALE_SMOOTH);
+
+            // 이미지 패널
+            JPanel imagePanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(scaledImage, 0, 0, getWidth(), getHeight(), this);
+                }
+
+                @Override
+                public Dimension getPreferredSize() {
+                    return new Dimension(800, 200);
+                }
+            };
+            add(imagePanel, BorderLayout.NORTH);
+
+            // 로그인 폼 패널 (중앙)
+            JPanel formPanel = new JPanel();
+            formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+            formPanel.setBorder(BorderFactory.createEmptyBorder(30, 100, 60, 100));
+
+            JLabel title = new JLabel("로그인");
             title.setFont(FontLoader.loadCustomFont(24f));
             title.setAlignmentX(Component.CENTER_ALIGNMENT);
-            add(title);
-            add(Box.createVerticalStrut(30));
 
-            JPanel idPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JLabel idLabel = new JLabel("이메일:");
             JTextField usernameField = new JTextField(15);
-            idPanel.add(idLabel);
-            idPanel.add(usernameField);
-            add(idPanel);
-
-            JPanel pwPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JLabel pwLabel = new JLabel("비밀번호:");
+            usernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
             JPasswordField passwordField = new JPasswordField(15);
-            pwPanel.add(pwLabel);
-            pwPanel.add(passwordField);
-            add(pwPanel);
+            passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
             JButton loginBtn = new JButton("로그인");
-            loginBtn.setFont(FontLoader.loadCustomFont(16f));
-            loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            JButton goRegisterBtn = new JButton("회원가입");
+
+            loginBtn.setPreferredSize(new Dimension(120, 35));
+            goRegisterBtn.setPreferredSize(new Dimension(120, 35));
+            loginBtn.setFont(FontLoader.loadCustomFont(14f));
+            goRegisterBtn.setFont(FontLoader.loadCustomFont(14f));
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+            buttonPanel.add(loginBtn);
+            buttonPanel.add(goRegisterBtn);
+            buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            // 로그인 버튼 기능
             loginBtn.addActionListener(e -> {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
@@ -68,17 +90,38 @@ public class AuthScreen extends JPanel {
                 } else {
                     JOptionPane.showMessageDialog(this, "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다.");
                 }
-
             });
 
-            JButton goRegisterBtn = new JButton("회원가입");
-            goRegisterBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            goRegisterBtn.addActionListener(e -> cardLayout.show(cardPanel, "REGISTER"));
+            goRegisterBtn.addActionListener(e -> {
+                AuthScreen.this.cardLayout.show(AuthScreen.this.cardPanel, "REGISTER");
+            });
 
-            add(Box.createVerticalStrut(20));
-            add(loginBtn);
-            add(Box.createVerticalStrut(10));
-            add(goRegisterBtn);
+            // 폼 패널 구성
+            formPanel.add(title);
+            formPanel.add(Box.createVerticalStrut(30));
+            formPanel.add(labeledField("이메일", usernameField));
+            formPanel.add(Box.createVerticalStrut(15));
+            formPanel.add(labeledField("비밀번호", passwordField));
+            formPanel.add(Box.createVerticalStrut(25));
+            formPanel.add(buttonPanel);
+
+            // 중앙에 폼 추가
+            add(formPanel, BorderLayout.CENTER);
+        }
+
+        private JPanel labeledField(String labelText, JComponent field) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            JLabel label = new JLabel(labelText);
+            label.setFont(FontLoader.loadCustomFont(13f));
+            label.setAlignmentX(Component.LEFT_ALIGNMENT);
+            field.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            panel.add(label);
+            panel.add(Box.createVerticalStrut(4));
+            panel.add(field);
+            panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            return panel;
         }
     }
 
@@ -128,10 +171,12 @@ public class AuthScreen extends JPanel {
             JTextField birthyearField = new JTextField(15);
             add(labeledField("출생년도(선택):", birthyearField));
 
+            Dimension buttonSize = new Dimension(150, 35);
             // 가입 버튼
             JButton registerBtn = new JButton("가입하기");
             registerBtn.setFont(FontLoader.loadCustomFont(16f));
             registerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            registerBtn.setMaximumSize(buttonSize);
             registerBtn.addActionListener(e -> {
                 String username = usernameField.getText().trim();
                 String nickname = nicknameField.getText().trim();
@@ -174,8 +219,9 @@ public class AuthScreen extends JPanel {
             });
 
             JButton goLoginBtn = new JButton("로그인으로 돌아가기");
+            goLoginBtn.setMaximumSize(buttonSize);
             goLoginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            goLoginBtn.addActionListener(e -> cardLayout.show(cardPanel, "LOGIN"));
+            goLoginBtn.addActionListener(e -> AuthScreen.this.cardLayout.show(AuthScreen.this.cardPanel, "LOGIN"));
 
             add(Box.createVerticalStrut(20));
             add(registerBtn);
