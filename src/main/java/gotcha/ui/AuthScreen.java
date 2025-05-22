@@ -2,6 +2,7 @@ package gotcha.ui;
 
 import gotcha.Main;
 import gotcha.common.FontLoader;
+import gotcha.common.Session;
 import gotcha.service.UserService;
 
 import javax.swing.*;
@@ -57,10 +58,17 @@ public class AuthScreen extends JPanel {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
                 if (userService.login(username, password)) {
-                    Main.setScreen(new HomeScreen());
+                    int userId = userService.getUserIdByEmail(username);
+                    if (userId != -1) {
+                        Session.loggedInUserId = userId;
+                        Main.setScreen(new HomeScreen());
+                    } else {
+                        JOptionPane.showMessageDialog(this, "로그인 오류: 사용자 정보를 찾을 수 없습니다.");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다.");
                 }
+
             });
 
             JButton goRegisterBtn = new JButton("회원가입");
