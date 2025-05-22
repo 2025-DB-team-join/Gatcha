@@ -1,5 +1,7 @@
 package gotcha.ui;
 
+import gotcha.Main;
+import gotcha.common.DateLabelFormatter;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.dao.GroupDAO;
@@ -8,6 +10,11 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.sql.Timestamp;
+import org.jdatepicker.impl.*;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
 
 public class GroupFormScreen extends JPanel {
 
@@ -68,8 +75,6 @@ public class GroupFormScreen extends JPanel {
         JComboBox<String> statusBox = new JComboBox<>(statuses);
         statusBox.setSelectedItem("모집중");
 
-        JTextField deadlineField = new JTextField(20);
-
         // 입력 폼 구성
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
@@ -88,10 +93,40 @@ public class GroupFormScreen extends JPanel {
         formPanel.add(labeledField("카테고리:", categoryBox));
         formPanel.add(Box.createVerticalStrut(10));
         formPanel.add(labeledField("상태:", statusBox));
-        formPanel.add(Box.createVerticalStrut(10));
-        formPanel.add(labeledField("모집 마감일 (yyyy-MM-dd HH:mm:ss):", deadlineField));
 
-        add(formPanel, BorderLayout.CENTER);
+        UtilDateModel dateModel = new UtilDateModel();
+
+        Calendar tomorrow = Calendar.getInstance();
+        tomorrow.add(Calendar.DAY_OF_MONTH, 1); // 내일 날짜를 기본으로 함.
+
+        dateModel.setDate(tomorrow.get(Calendar.YEAR), tomorrow.get(Calendar.MONTH), tomorrow.get(Calendar.DAY_OF_MONTH));
+        dateModel.setSelected(true);
+
+        Properties dateProps = new Properties();
+        dateProps.put("text.today", "오늘");
+        dateProps.put("text.month", "월");
+        dateProps.put("text.year", "년");
+
+        JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, dateProps);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+        SpinnerDateModel timeModel = new SpinnerDateModel();
+        JSpinner timeSpinner = new JSpinner(timeModel);
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm:ss");
+        timeSpinner.setEditor(timeEditor);
+        JScrollPane scrollPane = new JScrollPane(formPanel);
+        scrollPane.setBorder(null);
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
+
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(labeledField("모집 마감일 (날짜):", datePicker));
+
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(labeledField("모집 마감일 (시간):", timeSpinner));
+
 
         // 제출 버튼
         JButton submitBtn = new JButton("생성하기");
@@ -116,21 +151,41 @@ public class GroupFormScreen extends JPanel {
             String region = (String) regionBox.getSelectedItem();
             String category = (String) categoryBox.getSelectedItem();
             String status = (String) statusBox.getSelectedItem();
-            String deadlineText = deadlineField.getText().trim();
 
-            Timestamp deadline = null;
-            if (!deadlineText.isEmpty()) {
-                try {
-                    deadline = Timestamp.valueOf(deadlineText);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(this, "마감일 형식이 잘못되었습니다.");
-                    return;
-                }
+            Date selectedDate = (Date) datePicker.getModel().getValue();
+            Date selectedTime = (Date) timeSpinner.getValue();
+
+            Calendar selectedCal = Calendar.getInstance();
+            selectedCal.setTime(selectedDate);
+
+            Calendar tomorrowCal = Calendar.getInstance();
+            tomorrowCal.set(Calendar.HOUR_OF_DAY, 0);
+            tomorrowCal.set(Calendar.MINUTE, 0);
+            tomorrowCal.set(Calendar.SECOND, 0);
+            tomorrowCal.set(Calendar.MILLISECOND, 0);
+            tomorrowCal.add(Calendar.DAY_OF_MONTH, 1);
+
+            if (selectedCal.before(tomorrowCal)) {
+                JOptionPane.showMessageDialog(this, "마감일은 최소 '내일'이어야 합니다.");
+                return;
             }
 
-            int hostId = Session.loggedInUserId; //기본: -1로 DB 삽입 안됨(오류)
-            //login 안된 상태에서 DB insert 실패 handling 하는 로직
-            //int hostId = Session.loggedInUserId != -1 ? Session.loggedInUserId : 1;
+            Timestamp deadline = null;
+            if (selectedDate != null && selectedTime != null) {
+                Calendar finalCal = Calendar.getInstance();
+                finalCal.setTime(selectedDate);
+
+                Calendar timeCal = Calendar.getInstance();
+                timeCal.setTime(selectedTime);
+
+                finalCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+                finalCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+                finalCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+
+                deadline = new Timestamp(finalCal.getTimeInMillis());
+            }
+
+            int hostId = Session.loggedInUserId;
 
             GroupDAO dao = new GroupDAO();
             boolean success = dao.insertGroup(
@@ -139,8 +194,10 @@ public class GroupFormScreen extends JPanel {
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "소모임 생성 성공!");
+                Main.setScreen(new HomeScreen());
             } else {
-                JOptionPane.showMessageDialog(this, "소모임 생성 실패...");
+                JOptionPane.showMessageDialog(this, "소모임 생성 실패, 다시 시도해주세요!");
+                Main.setScreen(new HomeScreen());
             }
         });
 
