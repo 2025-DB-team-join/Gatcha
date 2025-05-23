@@ -17,7 +17,8 @@ public class CurrentGroupScreen extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("내가 참여중인 소모임 목록"));
 
-        String[] cols = {"클래스ID", "이름", "카테고리", "지역", "주최자", "운영 요일"};
+        // ↓↓↓ classId(클래스ID) 컬럼을 제거 ↓↓↓
+        String[] cols = {"이름", "카테고리", "지역", "주최자", "운영 요일"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -32,8 +33,8 @@ public class CurrentGroupScreen extends JPanel {
         List<CurrentGroupDAO.CurrentGroup> groupList = service.getCurrentGroups(userId);
         tableModel.setRowCount(0);
         for (CurrentGroupDAO.CurrentGroup g : groupList) {
+            // ↓↓↓ classId는 표에 넣지 않음 ↓↓↓
             Object[] row = {
-                g.getClassId(),
                 g.getTitle(),
                 g.getCategory(),
                 g.getRegion(),
