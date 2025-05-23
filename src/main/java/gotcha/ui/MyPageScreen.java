@@ -1,5 +1,7 @@
 package gotcha.ui;
 
+import gotcha.common.Session;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -8,15 +10,17 @@ public class MyPageScreen extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("마이페이지"));
 
-        // 상단: 내 정보 (예시)
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.add(new JLabel("내 정보 (닉네임, 이메일 등 표시 가능)"));
 
-        // 하단: 내가 참여중인 소모임 목록
-        CurrentGroupScreen currentGroupPanel = new CurrentGroupScreen(userId);
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.add(new CurrentGroupScreen(userId));
+        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(new HostedClassScreen(userId));
 
         add(infoPanel, BorderLayout.NORTH);
-        add(currentGroupPanel, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
     }
 }
