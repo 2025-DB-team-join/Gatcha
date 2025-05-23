@@ -46,6 +46,9 @@ public class Main {
                 frame.setSize(800, 600);
                 frame.setLocationRelativeTo(null);
 
+                ImageIcon mainIcon = new ImageIcon(Main.class.getResource("/images/icon.png"));
+                frame.setIconImage(mainIcon.getImage());
+
                 frame.setContentPane(new AuthScreen()); // 로그인 화면 표시
                 frame.setVisible(true);
             });
