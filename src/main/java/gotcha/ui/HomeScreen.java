@@ -17,9 +17,10 @@ public class HomeScreen extends JPanel {
         JButton groupBtn = new JButton("소모임 탐색");
         JButton createBtn = new JButton("소모임 생성");
         JButton myPageBtn = new JButton("마이페이지");
+        JButton categoryBtn = new JButton("카테고리별 조회");
 
         Font btnFont = FontLoader.loadCustomFont(16f);
-        JButton[] buttons = {groupBtn, createBtn, myPageBtn};
+        JButton[] buttons = {groupBtn, createBtn, myPageBtn, categoryBtn};
         for (JButton btn : buttons) {
             btn.setFont(btnFont);
             btn.setPreferredSize(new Dimension(140, 40));
@@ -45,5 +46,6 @@ public class HomeScreen extends JPanel {
 
         // 4. 버튼 이벤트 연결 (예시: 소모임 생성 → GroupFormScreen 전환)
         createBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
+        categoryBtn.addActionListener(e -> Main.setScreen(new CategoryScreen()));
     }
 }
