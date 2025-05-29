@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.home;
 
 import gotcha.service.RegionGenderService;
 import gotcha.dao.RegionGenderDAO;

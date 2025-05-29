@@ -1,7 +1,7 @@
 package gotcha;
 
 import gotcha.common.FontLoader;
-import gotcha.ui.HomeScreen;
+import gotcha.ui.home.HomeScreen;
 
 import javax.swing.*;
 

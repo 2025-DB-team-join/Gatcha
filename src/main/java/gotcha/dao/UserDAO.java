@@ -99,4 +99,69 @@ public class UserDAO {
         return userInfo;
     }
 
+    public void deleteUser(int userId) {
+        String sql = "UPDATE user SET deleted_at = NOW() WHERE user_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean checkPassword(int userId, String inputPassword) {
+        String sql = "SELECT password FROM user WHERE user_id = ? AND deleted_at IS NULL";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String realPassword = rs.getString("password");
+                return realPassword.equals(inputPassword); // 단순 비교 (암호화는 실제론 필요!)
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE user SET password = ? WHERE user_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newPassword);
+            pstmt.setInt(2, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // 성공시 true 반환
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateUserInfo(int userId, String newNickname, String newEmail, String newRegion) {
+        String sql = "UPDATE user SET nickname = ?, email = ?, region = ?, updated_at = NOW() WHERE user_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newNickname);
+            pstmt.setString(2, newEmail);
+            pstmt.setString(3, newRegion);
+            pstmt.setInt(4, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // 업데이트가 되면 true 반환!
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 }

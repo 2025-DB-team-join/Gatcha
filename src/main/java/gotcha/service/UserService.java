@@ -23,4 +23,21 @@ public class UserService {
     public Map<String, Object> getUserInfo(int userId) {
         return userDAO.getUserInfo(userId);
     }
+
+    public void deleteUser(int userId) {
+        userDAO.deleteUser(userId);
+    }
+
+    public boolean validateUserPassword(int userId, String inputPassword) {
+        return userDAO.checkPassword(userId, inputPassword);
+    }
+
+    public void updatePassword(int userId, String newPassword) {
+        userDAO.updatePassword(userId, newPassword);
+    }
+
+    public boolean updateUserInfo(int userId, String newNickname, String newEmail, String newRegion) {
+        return userDAO.updateUserInfo(userId, newNickname, newEmail, newRegion);
+    }
+
 }

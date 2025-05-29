@@ -3,6 +3,7 @@ package gotcha.ui;
 import gotcha.Main;
 import gotcha.service.BoardService;
 import gotcha.common.FontLoader;
+import gotcha.ui.home.HomeScreen;
 
 import javax.swing.*;
 import java.awt.*;
