@@ -38,14 +38,20 @@ public class RegionGenderScreen extends JPanel {
         topPanel.add(genderCombo);
         topPanel.add(searchBtn);
 
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JButton backBtn = new JButton("뒤로가기");
+        bottomPanel.add(backBtn);
+
         String[] cols = {"순위", "클래스명", "설명", "카테고리", "요일", "가입자수"};
         tableModel = new DefaultTableModel(cols, 0);
         resultTable = new JTable(tableModel);
 
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(resultTable), BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         searchBtn.addActionListener(e -> searchRank());
+        backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
 
         setVisible(true);
     }

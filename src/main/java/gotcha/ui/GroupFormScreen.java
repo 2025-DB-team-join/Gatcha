@@ -201,8 +201,12 @@ public class GroupFormScreen extends JPanel {
             }
         });
 
+        JButton backBtn = new JButton("뒤로가기");
+        backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(submitBtn);
+        buttonPanel.add(backBtn);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
