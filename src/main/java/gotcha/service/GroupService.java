@@ -10,13 +10,11 @@ public class GroupService {
 
     private final GroupDAO dao = new GroupDAO();
 
-    public void loadGroupAttendance(DefaultTableModel mainModel, DefaultTableModel top5Model, String keyword, String category) {
+    public void loadGroupAttendance(DefaultTableModel top5Model, String keyword, String category) {
         List<Vector<String>> groups = dao.getGroupsForAttendance(keyword, category);
 
         int rank = 1;
         for (Vector<String> row : groups) {
-            mainModel.addRow(row);
-
             if (rank <= 5) {
                 Vector<String> topRow = new Vector<>();
                 topRow.add(rank + "위");
@@ -27,6 +25,7 @@ public class GroupService {
             }
         }
     }
+
 
     public void loadGroupDetails(DefaultTableModel mainModel, String keyword, String category) {
         List<Vector<String>> groups = dao.getGroupDetails(keyword, category);
