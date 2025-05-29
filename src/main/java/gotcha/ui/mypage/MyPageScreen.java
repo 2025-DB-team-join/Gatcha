@@ -3,6 +3,8 @@ package gotcha.ui.mypage;
 import gotcha.service.UserService;
 import gotcha.ui.CurrentGroupScreen;
 import gotcha.ui.home.HomeScreen;
+import gotcha.ui.mypage.PreviousClassesPanel;
+import gotcha.ui.mypage.ScrapListPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,11 +73,24 @@ public class MyPageScreen extends JPanel {
         backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
 
 
-        // 하단: 내가 참여중인 소모임 목록
-        CurrentGroupScreen currentGroupPanel = new CurrentGroupScreen(userId);
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.add(new JLabel("참여 중인 소모임"));
+        centerPanel.add(new CurrentGroupScreen(userId));
+        centerPanel.add(Box.createVerticalStrut(20));
+        
+        centerPanel.add(new JLabel("스크랩한 소모임"));
+        centerPanel.add(new ScrapListPanel(userId));
+        centerPanel.add(Box.createVerticalStrut(20));
+        
+        centerPanel.add(new JLabel("내가 수강한 소모임"));
+        centerPanel.add(new PreviousClassesPanel(userId));
+        
+        JScrollPane scrollPane = new JScrollPane(centerPanel);
 
         add(infoPanel, BorderLayout.NORTH);
-        add(currentGroupPanel, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
 
     }
 }
