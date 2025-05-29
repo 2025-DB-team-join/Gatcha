@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.mypage;
 import gotcha.service.ScrapService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -6,12 +6,12 @@ import java.awt.*;
 import java.util.List;
 import java.util.Vector;
 
-public class ScrapListScreen extends JPanel {
+public class ScrapListPanel extends JPanel {
 	private JTable scrapTable;
 	private ScrapService scrapService;
 	private int userId;
 	
-	public ScrapListScreen(int userId) {
+	public ScrapListPanel(int userId) {
 		this.userId = userId;
 		this.scrapService = new ScrapService();
 		
@@ -19,8 +19,6 @@ public class ScrapListScreen extends JPanel {
 		
 		scrapTable = new JTable();
 		JScrollPane scrollPane = new JScrollPane(scrapTable);
-		scrollPane.setBorder(BorderFactory.createTitledBorder("내가 스크랩한 소모임"));
-		
 		add(scrollPane, BorderLayout.CENTER);
 		refreshTable();
 	}

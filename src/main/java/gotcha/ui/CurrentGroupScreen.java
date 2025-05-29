@@ -15,7 +15,6 @@ public class CurrentGroupScreen extends JPanel {
 
     public CurrentGroupScreen(int userId) {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createTitledBorder("내가 참여중인 소모임 목록"));
 
         // ↓↓↓ classId(클래스ID) 컬럼을 제거 ↓↓↓
         String[] cols = {"이름", "카테고리", "지역", "주최자", "운영 요일"};

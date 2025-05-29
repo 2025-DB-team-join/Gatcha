@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.mypage;
 
 import gotcha.service.PreviousClassesService;
 import javax.swing.*;
@@ -7,12 +7,12 @@ import java.awt.*;
 import java.util.List;
 import java.util.Vector;
 
-public class PreviousClassesScreen extends JPanel {
+public class PreviousClassesPanel extends JPanel {
 	private JTable previousClassesTable;
 	private PreviousClassesService previousClassesService;
 	private int userId;
 	
-	public PreviousClassesScreen(int userId) {
+	public PreviousClassesPanel(int userId) {
 		this.userId = userId;
 		this.previousClassesService = new PreviousClassesService();
 		
@@ -20,7 +20,6 @@ public class PreviousClassesScreen extends JPanel {
 		
 		previousClassesTable = new JTable();
 		JScrollPane scrollPane = new JScrollPane(previousClassesTable);
-		scrollPane.setBorder(BorderFactory.createTitledBorder("이전에 참여한 소모임"));
 		add(scrollPane, BorderLayout.CENTER);
 		refreshTable();
 	}
