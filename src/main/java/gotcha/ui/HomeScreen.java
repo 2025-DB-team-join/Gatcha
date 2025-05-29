@@ -3,51 +3,91 @@ package gotcha.ui;
 import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
+import gotcha.service.HomeService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class HomeScreen extends JPanel {
-    public HomeScreen() {
-        setLayout(new BorderLayout());
-        FontLoader.applyGlobalFont(14f);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 30));
-        JButton groupBtn = new JButton("소모임 탐색");
+    private JTable groupTable, top5Table;
+    private JComboBox<String> categoryToggle;
+    private JTextField searchField;
+    private final HomeService service = new HomeService();
+
+    public HomeScreen() {
+        FontLoader.applyGlobalFont(14f);
+        groupTable = new JTable();
+        top5Table = new JTable();
+
+        // 검색 + 카테고리 패널
+        JPanel searchCategoryPanel = new JPanel(new BorderLayout());
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        searchField = new JTextField(15);
+        JButton searchBtn = new JButton("검색");
+        searchPanel.add(new JLabel("소모임 검색:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchBtn);
+
+        JPanel categoryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        categoryPanel.add(new JLabel("카테고리별 조회:"));
+        String[] categories = {"전체", "봉사활동", "사교/인맥", "문화/공연/축제", "인문학/책/글", "공예/만들기", "댄스/무용", "운동/스포츠", "외국/언어", "아웃도어/여행", "음악/악기", "차/바이크", "사진/영상", "스포츠관람", "게임/오락", "요리/제조", "반려동물", "자기계발", "테크/프로그래밍", "패션/뷰티", "수집/덕질"};
+        categoryToggle = new JComboBox<>(categories);
+        categoryPanel.add(categoryToggle);
+
+        searchCategoryPanel.add(searchPanel, BorderLayout.WEST);
+        searchCategoryPanel.add(categoryPanel, BorderLayout.EAST);
+
+        // topPanel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         JButton createBtn = new JButton("소모임 생성");
         JButton myPageBtn = new JButton("마이페이지");
 
-        Font btnFont = FontLoader.loadCustomFont(16f);
-        JButton[] buttons = {groupBtn, createBtn, myPageBtn};
-        for (JButton btn : buttons) {
-            btn.setFont(btnFont);
-            btn.setPreferredSize(new Dimension(140, 40));
-            buttonPanel.add(btn);
-        }
+        JScrollPane top5Scroll = new JScrollPane(top5Table);
+        top5Scroll.setBorder(BorderFactory.createTitledBorder("\nTop 5 활발한 소모임"));
+        top5Scroll.setPreferredSize(new Dimension(780, 200));
+        centerPanel.add(top5Scroll);
 
-        JLabel imageLabel;
-        try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/images/gatchi.png"));
-            Image scaled = icon.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
-            imageLabel = new JLabel(new ImageIcon(scaled));
-        } catch (Exception e) {
-            imageLabel = new JLabel("이미지를 불러올 수 없습니다.");
-        }
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        imageLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JButton regionGenderBtn = new JButton("지역/성별로 조회");
+        bottomButtonPanel.add(regionGenderBtn);
 
-        add(buttonPanel, BorderLayout.NORTH);
-        add(imageLabel, BorderLayout.CENTER);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
 
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // 이벤트 처리
         createBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
-        myPageBtn.addActionListener(e -> {
-            int userId = Session.loggedInUserId;
-            if (userId != -1) {
-                Main.setScreen(new MyPageScreen(userId));
-            } else {
-                JOptionPane.showMessageDialog(this, "로그인 정보가 없습니다. 다시 로그인해주세요.");
-            }
-        });
+        // myPageBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
+        searchBtn.addActionListener(e -> refreshTables());
+        categoryToggle.addActionListener(e -> refreshTables());
+        regionGenderBtn.addActionListener(e -> Main.setScreen(new RegionGenderScreen()));
+
+        mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+
+        // 초기 로드
+        refreshTables();
+    }
+
+    private void refreshTables() {
+        DefaultTableModel mainModel = new DefaultTableModel();
+        mainModel.setColumnIdentifiers(new String[]{"소모임 이름", "소개", "상태", "지역"});
+        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
+
+        DefaultTableModel top5Model = new DefaultTableModel();
+        top5Model.setColumnIdentifiers(new String[]{"소모임 이름", "카테고리", "출석률", "횟수"});
+        service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
+
+        groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        groupTable.setModel(mainModel);
+        top5Table.setModel(top5Model);
     }
 }
