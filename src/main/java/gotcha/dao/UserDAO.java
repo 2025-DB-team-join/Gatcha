@@ -3,6 +3,8 @@ package gotcha.dao;
 import gotcha.common.DBConnector;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserDAO {
     public boolean login(String email, String password) {
@@ -65,6 +67,36 @@ public class UserDAO {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public Map<String, Object> getUserInfo(int userId) {
+        Map<String, Object> userInfo = new HashMap<>();
+
+        String sql =
+                "SELECT user_id, username, nickname, email, birthyear, gender, region, registered_at " +
+                        "FROM user WHERE user_id = ? AND deleted_at IS NULL";
+
+        try (
+                Connection conn = DBConnector.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                userInfo.put("user_id", rs.getInt("user_id"));
+                userInfo.put("username", rs.getString("username"));
+                userInfo.put("nickname", rs.getString("nickname"));
+                userInfo.put("email", rs.getString("email"));
+                userInfo.put("birthyear", rs.getInt("birthyear"));
+                userInfo.put("gender", rs.getString("gender"));
+                userInfo.put("region", rs.getString("region"));
+                userInfo.put("registered_at", rs.getTimestamp("registered_at"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userInfo;
     }
 
 }
