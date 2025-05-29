@@ -90,10 +90,9 @@ public class HomeScreen extends JPanel {
         mainModel.setColumnIdentifiers(new String[]{"소모임 이름", "소개", "상태", "지역"});
         service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
-        DefaultTableModel attendanceModel = new DefaultTableModel();
         DefaultTableModel top5Model = new DefaultTableModel();
-        attendanceModel.setColumnIdentifiers(new String[]{"소모임 이름", "카테고리", "출석률", "횟수"});
-        service.loadGroupAttendance(attendanceModel, top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
+        top5Model.setColumnIdentifiers(new String[]{"소모임 이름", "카테고리", "출석률", "횟수"});
+        service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
