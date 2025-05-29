@@ -2,6 +2,8 @@ package gotcha.service;
 
 import gotcha.dao.UserDAO;
 
+import java.util.Map;
+
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
 
@@ -16,5 +18,9 @@ public class UserService {
 
     public int getUserIdByEmail(String email) {
         return userDAO.findUserIdByEmail(email);
+    }
+
+    public Map<String, Object> getUserInfo(int userId) {
+        return userDAO.getUserInfo(userId);
     }
 }

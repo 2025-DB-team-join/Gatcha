@@ -2,6 +2,7 @@ package gotcha.ui;
 
 import gotcha.Main;
 import gotcha.common.FontLoader;
+import gotcha.common.Session;
 import gotcha.service.HomeService;
 
 import javax.swing.*;
@@ -19,6 +20,7 @@ public class HomeScreen extends JPanel {
         FontLoader.applyGlobalFont(14f);
         groupTable = new JTable();
         top5Table = new JTable();
+        int userId = Session.loggedInUserId;
 
         // 검색 + 카테고리 패널
         JPanel searchCategoryPanel = new JPanel(new BorderLayout());
@@ -80,12 +82,20 @@ public class HomeScreen extends JPanel {
 
         // 이벤트 처리
         createBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
-        // myPageBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
+        myPageBtn.addActionListener(e -> Main.setScreen(new MyPageScreen(userId)));
         searchBtn.addActionListener(e -> refreshTables());
         categoryToggle.addActionListener(e -> refreshTables());
         regionGenderBtn.addActionListener(e -> Main.setScreen(new RegionGenderScreen()));
 
         mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+
+        myPageBtn.addActionListener(e -> {
+            if (userId != -1) {
+                Main.setScreen(new MyPageScreen(userId));
+            } else {
+                JOptionPane.showMessageDialog(this, "로그인 정보가 없습니다. 다시 로그인해주세요.");
+            }
+        });
 
         // 초기 로드
         refreshTables();
