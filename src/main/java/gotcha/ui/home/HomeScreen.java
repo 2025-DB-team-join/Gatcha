@@ -1,9 +1,11 @@
-package gotcha.ui;
+package gotcha.ui.home;
 
 import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.service.HomeService;
+import gotcha.ui.GroupFormScreen;
+import gotcha.ui.mypage.MyPageScreen;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

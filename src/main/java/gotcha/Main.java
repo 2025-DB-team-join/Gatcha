@@ -2,7 +2,7 @@ package gotcha;
 
 import gotcha.common.DBConnector;
 import gotcha.common.FontLoader;
-import gotcha.ui.AuthScreen;
+import gotcha.ui.home.AuthScreen;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
