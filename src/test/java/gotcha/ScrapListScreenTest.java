@@ -1,8 +1,10 @@
 package gotcha;
 
 import gotcha.ui.ScrapListScreen;
+import gotcha.ui.PreviousClassesScreen;
 
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
 
 public class ScrapListScreenTest {
     public static void main(String[] args) {
@@ -11,11 +13,17 @@ public class ScrapListScreenTest {
 
         JFrame frame = new JFrame("스크랩 리스트 테스트");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(800, 800);
 
         ScrapListScreen scrapListScreen = new ScrapListScreen(testUserId);
+        PreviousClassesScreen previousClassesScreen = new PreviousClassesScreen(testUserId);
 
-        frame.add(scrapListScreen);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(scrapListScreen);
+        mainPanel.add(previousClassesScreen);
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        frame.add(scrollPane, BorderLayout.CENTER);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
