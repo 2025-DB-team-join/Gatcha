@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.manage;
 
 import gotcha.Main;
 import gotcha.service.BoardService;

@@ -144,4 +144,73 @@ public class GroupDAO {
         return result;
     }
 
+    //소모임 관리 관련 
+    public List<Vector<String>> selectGroupsByHost(int hostId) {
+        List<Vector<String>> result = new ArrayList<>();
+        String sql = "SELECT title, category, main_region, occurrences, max_participants " +
+                     "FROM class " +
+                     "WHERE host_id = ? AND deleted_at IS NULL " +
+                     "ORDER BY created_at DESC";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, hostId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));                   // 클래스명
+                row.add(rs.getString("category"));                // 카테고리
+                row.add(rs.getString("main_region"));             // 지역 (예: 강남구)
+                row.add(String.valueOf(rs.getInt("occurrences"))); // 진행횟수
+                row.add(String.valueOf(rs.getInt("max_participants"))); // 정원
+                result.add(row);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    public Vector<String> getGroupById(int classId) {
+        String sql = "SELECT title, context, category, main_region, status " +
+                     "FROM class " +
+                     "WHERE class_id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));        // 제목
+                row.add(rs.getString("context"));      // 소개글
+                row.add(rs.getString("category"));     // 카테고리
+                row.add(rs.getString("main_region"));  // 지역
+                row.add(rs.getString("status"));       // 상태
+                return row;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+
+	public boolean markGroupAsDeleted(int classId) {
+		String sql = "UPDATE class SET deleted_at = NOW() WHERE class_id = ?";
+	    try (Connection conn = DBConnector.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, classId);
+	        return ps.executeUpdate() > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 }
