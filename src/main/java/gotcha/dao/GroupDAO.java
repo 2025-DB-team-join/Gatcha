@@ -172,6 +172,33 @@ public class GroupDAO {
         }
         return result;
     }
+    
+    public Vector<String> getGroupById(int classId) {
+        String sql = "SELECT title, context, category, main_region, status " +
+                     "FROM class " +
+                     "WHERE class_id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));        // 제목
+                row.add(rs.getString("context"));      // 소개글
+                row.add(rs.getString("category"));     // 카테고리
+                row.add(rs.getString("main_region"));  // 지역
+                row.add(rs.getString("status"));       // 상태
+                return row;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 
 

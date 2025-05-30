@@ -5,7 +5,7 @@ import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.service.HomeService;
 import gotcha.ui.GroupFormScreen;
-import gotcha.ui.ManageGroupScreen;
+import gotcha.ui.manage.ManageGroupScreen;
 import gotcha.ui.mypage.MyPageScreen;
 
 import javax.swing.*;

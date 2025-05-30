@@ -1,8 +1,8 @@
 package gotcha;
 
-import gotcha.ui.ManageGroupScreen;
-
 import javax.swing.*;
+
+import gotcha.ui.manage.ManageGroupScreen;
 
 public class ManageGroupScreenTest {
     public static void main(String[] args) {
