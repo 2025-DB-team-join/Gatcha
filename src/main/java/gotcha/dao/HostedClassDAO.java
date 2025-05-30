@@ -11,16 +11,20 @@ public class HostedClassDAO {
         private int classId;
         private String title;
         private String category;
+        private String context;
         private String region;
         private String days;
         private int userCount;
+        private int maxP;
         private String status;
 
-        public HostedClass(int classId, String title, String category, String region, String days, int userCount, String status) {
+        public HostedClass(int classId, String title, String category, String context, String region, int maxP, String days, int userCount, String status) {
             this.classId = classId;
             this.title = title;
             this.category = category;
+            this.context = context;
             this.region = region;
+            this.maxP = maxP;
             this.days = days;
             this.userCount = userCount;
             this.status = status;
@@ -28,16 +32,19 @@ public class HostedClassDAO {
         public int getClassId() { return classId; }
         public String getTitle() { return title; }
         public String getCategory() { return category; }
+        public String getContext() {return context; }
         public String getRegion() { return region; }
+        public int getMax() {return maxP;}
         public String getDays() { return days; }
         public int getUserCount() { return userCount; }
         public String getStatus() { return status; }
+		
     }
 
     public List<HostedClass> getMyHostedClasses(int hostId) {
         List<HostedClass> result = new ArrayList<>();
         String sql =
-            "SELECT c.class_id, c.title, c.category, c.main_region, " +
+            "SELECT c.class_id, c.title, c.category, c.context, c.main_region, c.max_participants, " +
             "  GROUP_CONCAT(DISTINCT CASE s.day_of_week " +
             "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
             "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
@@ -63,7 +70,9 @@ public class HostedClassDAO {
                     rs.getInt("class_id"),
                     rs.getString("title"),
                     rs.getString("category"),
+                    rs.getString("context"),
                     rs.getString("main_region"),
+                    rs.getInt("max_participants"),
                     rs.getString("days"),
                     rs.getInt("user_count"),
                     rs.getString("status")
@@ -77,7 +86,7 @@ public class HostedClassDAO {
     
     public HostedClass getHostedClassById(int classId) {
         String sql =
-            "SELECT c.class_id, c.title, c.category, c.main_region, " +
+            "SELECT c.class_id, c.title, c.category, c.context, c.main_region, c.max_participants, " +
             "  GROUP_CONCAT(DISTINCT CASE s.day_of_week " +
             "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
             "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
@@ -89,7 +98,7 @@ public class HostedClassDAO {
             "LEFT JOIN schedule s ON c.class_id = s.class_id " +
             "LEFT JOIN (SELECT class_id, SUM(user_count) AS sum_user_count FROM class_user_cube GROUP BY class_id) u ON c.class_id = u.class_id " +
             "WHERE c.class_id = ? AND c.deleted_at IS NULL " +
-            "GROUP BY c.class_id, c.title, c.category, c.main_region, c.status, u.sum_user_count";
+            "GROUP BY c.class_id, c.title, c.category, c.context, c.main_region, c.status, u.sum_user_count";
 
         try (
             Connection conn = DBConnector.getConnection();
@@ -102,7 +111,9 @@ public class HostedClassDAO {
                     rs.getInt("class_id"),
                     rs.getString("title"),
                     rs.getString("category"),
+                    rs.getString("context"),
                     rs.getString("main_region"),
+                    rs.getInt("max_participants"),
                     rs.getString("days"),
                     rs.getInt("user_count"),
                     rs.getString("status")
