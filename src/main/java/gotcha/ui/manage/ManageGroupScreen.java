@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.manage;
 
 import gotcha.Main;
 import gotcha.common.Session;
@@ -98,7 +98,7 @@ public class ManageGroupScreen extends JPanel {
         }
 
         if (classId != -1) {
-            Main.setScreen(new ViewGroupScreen(classId));
+        	Main.setScreen(new MyGroupDetailScreen(classId, userId));
         } else {
             JOptionPane.showMessageDialog(this, "소모임 ID를 찾을 수 없습니다.");
         }
