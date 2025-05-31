@@ -2,6 +2,7 @@ package gotcha.ui.manage;
 
 import gotcha.Main;
 import gotcha.common.FontLoader;
+import gotcha.dao.GroupDAO;
 import gotcha.dao.HostedClassDAO;
 import gotcha.dao.HostedClassDAO.HostedClass;
 
@@ -83,6 +84,23 @@ public class MyGroupDetailScreen extends JPanel {
         JButton deleteBtn = new JButton("삭제");
         JButton backBtn = new JButton("뒤로가기");
 
+        editBtn.addActionListener(e -> {
+            Main.setScreen(new gotcha.ui.GroupFormScreen(hostedClass.getClassId(), userId));
+        });
+
+        deleteBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "정말 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = new GroupDAO().markGroupAsDeleted(hostedClass.getClassId());
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "삭제가 완료되었습니다.");
+                    Main.setScreen(new ManageGroupScreen(userId));
+                } else {
+                    JOptionPane.showMessageDialog(this, "삭제에 실패했습니다.");
+                }
+            }
+        });
+
         backBtn.addActionListener(e -> Main.setScreen(new ManageGroupScreen(userId)));
 
         panel.add(editBtn);
@@ -91,3 +109,4 @@ public class MyGroupDetailScreen extends JPanel {
         return panel;
     }
 }
+

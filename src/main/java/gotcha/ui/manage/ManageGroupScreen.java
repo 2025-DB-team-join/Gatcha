@@ -1,7 +1,6 @@
 package gotcha.ui.manage;
 
 import gotcha.Main;
-import gotcha.common.Session;
 import gotcha.dao.HostedClassDAO.HostedClass;
 import gotcha.service.ManageGroupService;
 
@@ -16,8 +15,7 @@ public class ManageGroupScreen extends JPanel {
     private JTable groupTable;
     private JComboBox<String> statusFilter;
     private int userId;
-    private int classId;
-    
+
     private List<HostedClass> hostedClasses;
 
     public ManageGroupScreen(int userId) {
@@ -49,7 +47,7 @@ public class ManageGroupScreen extends JPanel {
 
         // 이벤트 처리
         statusFilter.addActionListener(e -> loadGroupTable(userId));
-        viewBtn.addActionListener(e -> handleView(classId));
+        viewBtn.addActionListener(e -> handleView());
         backBtn.addActionListener(e -> Main.setScreen(new gotcha.ui.home.HomeScreen()));
 
         loadGroupTable(userId);
@@ -57,7 +55,7 @@ public class ManageGroupScreen extends JPanel {
 
     private void loadGroupTable(int userId) {
         DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(new String[]{"클래스명", "카테고리", "지역", "요일", "정원", "상태"});
+        model.setColumnIdentifiers(new String[]{"클래스명", "카테고리", "지역", "요일", "인원 현황", "상태"});
 
         String selectedStatus = (String) statusFilter.getSelectedItem();
         hostedClasses = service.getMyGroups(userId);
@@ -71,7 +69,7 @@ public class ManageGroupScreen extends JPanel {
                 displayRow.add(row.getCategory());
                 displayRow.add(row.getRegion());
                 displayRow.add(row.getDays());
-                displayRow.add(String.valueOf(row.getUserCount()));
+                displayRow.add(row.getUserCount() + " / " + row.getMax());
                 displayRow.add(row.getStatus());
                 model.addRow(displayRow);
             }
@@ -79,8 +77,7 @@ public class ManageGroupScreen extends JPanel {
         groupTable.setModel(model);
     }
 
-
-    private void handleView(int classId) {
+    private void handleView() {
         int selected = groupTable.getSelectedRow();
         if (selected == -1) {
             JOptionPane.showMessageDialog(this, "상세 조회할 소모임을 선택해주세요.");
@@ -88,28 +85,19 @@ public class ManageGroupScreen extends JPanel {
         }
 
         String selectedTitle = (String) groupTable.getValueAt(selected, 0);
-        classId = -1;
+        int selectedClassId = -1;
 
         for (HostedClass cls : hostedClasses) {
             if (cls.getTitle().equals(selectedTitle)) {
-                classId = cls.getClassId();
+                selectedClassId = cls.getClassId();
                 break;
             }
         }
 
-        if (classId != -1) {
-        	Main.setScreen(new MyGroupDetailScreen(classId, userId));
+        if (selectedClassId != -1) {
+            Main.setScreen(new MyGroupDetailScreen(selectedClassId, userId));
         } else {
             JOptionPane.showMessageDialog(this, "소모임 ID를 찾을 수 없습니다.");
-        }
-    }
-
-
-    private void handleDelete() {
-        int selected = groupTable.getSelectedRow();
-        if (selected == -1) {
-            JOptionPane.showMessageDialog(this, "삭제할 소모임을 선택해주세요.");
-            return;
         }
     }
 }
