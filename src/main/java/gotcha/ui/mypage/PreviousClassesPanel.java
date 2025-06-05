@@ -25,16 +25,24 @@ public class PreviousClassesPanel extends JPanel {
 	}
 	
 	private void refreshTable() {
-		DefaultTableModel model = new DefaultTableModel();
-		model.setColumnIdentifiers(new String[] {"소모임 이름", "설명"});
-		List<Vector<String>> previousClasses = previousClassesService.getPreviousClasses(userId);
-		
-		if (previousClasses != null) {
-			for (Vector<String> row : previousClasses) {
-				model.addRow(new String[] {row.get(1), row.get(2)});
-			}
-		}
-		previousClassesTable.setModel(model);
-		previousClassesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+	    DefaultTableModel model = new DefaultTableModel();
+	    model.setColumnIdentifiers(new String[] {"소모임 이름", "설명"});
+
+	    List<Vector<String>> previousClasses = previousClassesService.getPreviousClasses(userId);
+
+	    if (previousClasses != null) {
+	        for (Vector<String> row : previousClasses) {
+	            if (row.size() >= 2) {
+	                model.addRow(new String[] {row.get(0), row.get(1)}); // ✅ 수정
+	            } else {
+	                System.out.println("🚨 잘못된 row: " + row);
+	            }
+	        }
+	    }
+
+	    previousClassesTable.setModel(model);
+	    previousClassesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	}
+
+
 }
