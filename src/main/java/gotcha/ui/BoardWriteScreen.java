@@ -1,7 +1,7 @@
 package gotcha.ui;
 
 import gotcha.Main;
-import gotcha.service.BoardService;
+import gotcha.service.BoardWriteService;
 import gotcha.common.FontLoader;
 import gotcha.ui.home.HomeScreen;
 
@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class BoardWriteScreen extends JPanel {
-	private final BoardService boardService = new BoardService();
+	private final BoardWriteService boardWriteService = new BoardWriteService();
 	
 	public BoardWriteScreen(int userId, int classId) {
 		setLayout(new BorderLayout(20, 20));
@@ -41,7 +41,7 @@ public class BoardWriteScreen extends JPanel {
 			String title = titleField.getText().trim();
 			String context = contextArea.getText().trim();
 			
-			int hostId = boardService.getHostId(classId);
+			int hostId = boardWriteService.getHostId(classId);
 			if (hostId == -1) {
 				JOptionPane.showMessageDialog(this, "존재하지 않는 소모임입니다.");
 				return;
@@ -57,7 +57,7 @@ public class BoardWriteScreen extends JPanel {
 				return;
 			}
 			
-			boolean success = boardService.createPostAndReturnStatus(userId, classId, title, context);
+			boolean success = boardWriteService.createPostAndReturnStatus(userId, classId, title, context);
 			if (success) {
 				JOptionPane.showMessageDialog(this, "게시글을 등록하였습니다.");
 				Main.setScreen(new HomeScreen());

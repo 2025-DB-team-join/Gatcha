@@ -1,12 +1,12 @@
 package gotcha.service;
 
-import gotcha.dao.BoardDAO;
+import gotcha.dao.BoardWriteDAO;
 
-public class BoardService {
-	private gotcha.dao.BoardDAO boardDAO = new BoardDAO();
+public class BoardWriteService {
+	private gotcha.dao.BoardWriteDAO boardWriteDAO = new BoardWriteDAO();
 	
 	public void createPost(int userId, int classId, String title, String context) {
-		int hostId = boardDAO.findHostId(classId);
+		int hostId = boardWriteDAO.findHostId(classId);
 		
 		if (hostId == -1) {
 			System.out.println("소모임이 존재하지 않습니다.");
@@ -18,7 +18,7 @@ public class BoardService {
 			return;
 		}
 		
-		boolean success = boardDAO.insertPost(userId, classId, title, context);
+		boolean success = boardWriteDAO.insertPost(userId, classId, title, context);
 		if (success) {
 			System.out.println("게시글을 등록했습니다!");
 		} else {
@@ -27,12 +27,12 @@ public class BoardService {
 	}
 	
 	public int getHostId(int classId) {
-		return boardDAO.findHostId(classId);
+		return boardWriteDAO.findHostId(classId);
 	}
 	
 	public boolean createPostAndReturnStatus(int userId, int classId, String title, String context) {
-		int hostId = boardDAO.findHostId(classId);
+		int hostId = boardWriteDAO.findHostId(classId);
 		if (hostId == -1 || userId != hostId) return false;
-		return boardDAO.insertPost(userId, classId, title, context);
+		return boardWriteDAO.insertPost(userId, classId, title, context);
 	}
 }

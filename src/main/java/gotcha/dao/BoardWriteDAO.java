@@ -4,7 +4,7 @@ import gotcha.common.DBConnector;
 
 import java.sql.*;
 
-public class BoardDAO{
+public class BoardWriteDAO{
 	public int findHostId(int classId) {
 		String sql = "SELECT host_id FROM class WHERE class_id = ?";
 		try (Connection conn = DBConnector.getConnection();
