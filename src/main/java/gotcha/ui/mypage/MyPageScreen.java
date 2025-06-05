@@ -20,48 +20,75 @@ public class MyPageScreen extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("마이페이지"));
 
-        // 1. 상단: 내 정보 + 평점
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        Map<String, Object> userInfo = userService.getUserInfo(userId);
+        infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        Map<String, Object> userInfo = userService.getUserInfo(userId);
         if (!userInfo.isEmpty()) {
-            infoPanel.add(new JLabel("닉네임: " + userInfo.get("nickname")));
-            infoPanel.add(new JLabel("이메일: " + userInfo.get("email")));
-            infoPanel.add(new JLabel("출생연도: " + userInfo.get("birthyear")));
-            infoPanel.add(new JLabel("성별: " + userInfo.get("gender")));
-            infoPanel.add(new JLabel("지역: " + userInfo.get("region")));
-            infoPanel.add(new JLabel("가입일: " + userInfo.get("registered_at")));
+            JLabel nickname = new JLabel("닉네임: " + userInfo.get("nickname"));
+            JLabel email = new JLabel("이메일: " + userInfo.get("email"));
+            JLabel birthyear = new JLabel("출생연도: " + userInfo.get("birthyear"));
+            JLabel gender = new JLabel("성별: " + userInfo.get("gender"));
+            JLabel region = new JLabel("지역: " + userInfo.get("region"));
+            JLabel registeredAt = new JLabel("가입일: " + userInfo.get("registered_at"));
+
+            for (JLabel label : new JLabel[]{nickname, email, birthyear, gender, region, registeredAt}) {
+                label.setAlignmentX(Component.LEFT_ALIGNMENT);
+                infoPanel.add(label);
+            }
+
             infoPanel.add(Box.createVerticalStrut(10));
 
-            // 별점 + "나에 대한 리뷰 보기" 버튼
             double avgRating = ratingService.getAverageRating(userId);
             JPanel starPanel = makeStarPanel(avgRating);
+            starPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            infoPanel.add(starPanel);
 
             JButton myReviewBtn = new JButton("나에 대한 리뷰 보기");
-            starPanel.add(Box.createHorizontalStrut(10));
-            starPanel.add(myReviewBtn);
+            myReviewBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+            infoPanel.add(myReviewBtn);
 
-            infoPanel.add(starPanel);
-            infoPanel.add(Box.createVerticalStrut(10));
-
-            // 리뷰 보기 버튼 이벤트
             myReviewBtn.addActionListener(e -> {
                 JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-                // UserReviewScreen을 JDialog로 사용
                 UserReviewScreen dialog = new UserReviewScreen(topFrame, userId);
                 dialog.setVisible(true);
             });
 
-        } else {
-            infoPanel.add(new JLabel("사용자 정보를 불러올 수 없습니다."));
-            infoPanel.add(Box.createVerticalStrut(20));
+            infoPanel.add(Box.createVerticalStrut(10));
         }
 
-        // 2. 하단: 내가 참여중인 소모임 목록
-        CurrentGroupScreen currentGroupPanel = new CurrentGroupScreen(userId);
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
-        // 3. 개인정보 수정, 비밀번호 변경, 회원탈퇴, 뒤로가기 버튼
+        // 참여 중인 소모임
+        centerPanel.add(new JLabel("참여 중인 소모임(주최 제외)"));
+        JScrollPane scroll1 = new JScrollPane(new CurrentGroupScreen(userId));
+        scroll1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll1.getViewport().setPreferredSize(new Dimension(800, 150));
+        centerPanel.add(scroll1);
+        centerPanel.add(Box.createVerticalStrut(20));
+
+        // 스크랩한 소모임
+        centerPanel.add(new JLabel("스크랩한 소모임"));
+        JScrollPane scroll2 = new JScrollPane(new ScrapListPanel(userId));
+        scroll2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll2.getViewport().setPreferredSize(new Dimension(800, 150));
+        centerPanel.add(scroll2);
+        centerPanel.add(Box.createVerticalStrut(20));
+
+        // 내가 수강한 소모임
+        centerPanel.add(new JLabel("내가 수강한 소모임"));
+        JScrollPane scroll3 = new JScrollPane(new PreviousClassesPanel(userId));
+        scroll3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll3.getViewport().setPreferredSize(new Dimension(800, 150));
+        centerPanel.add(scroll3);
+
+
+
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -79,48 +106,16 @@ public class MyPageScreen extends JPanel {
         buttonPanel.add(leftPanel, BorderLayout.WEST);
         buttonPanel.add(rightPanel, BorderLayout.EAST);
 
-        // 4. 배치
         add(infoPanel, BorderLayout.NORTH);
-        add(currentGroupPanel, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // 5. 이벤트
-        editInfoBtn.addActionListener(e -> {
-            EditUserInfoDialog dialog = new EditUserInfoDialog(userId);
-            dialog.setVisible(true);
-        });
-        changePwBtn.addActionListener(e -> {
-            ChangePasswordDialog dialog = new ChangePasswordDialog(userId);
-            dialog.setVisible(true);
-        });
-        deleteAccountBtn.addActionListener(e -> {
-            DeleteAccountDialog dialog = new DeleteAccountDialog(userId);
-            dialog.setVisible(true);
-        });
+        editInfoBtn.addActionListener(e -> new EditUserInfoDialog(userId).setVisible(true));
+        changePwBtn.addActionListener(e -> new ChangePasswordDialog(userId).setVisible(true));
+        deleteAccountBtn.addActionListener(e -> new DeleteAccountDialog(userId).setVisible(true));
         backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
-
-
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.add(new JLabel("참여 중인 소모임"));
-        centerPanel.add(new CurrentGroupScreen(userId));
-        centerPanel.add(Box.createVerticalStrut(20));
-
-        centerPanel.add(new JLabel("스크랩한 소모임"));
-        centerPanel.add(new ScrapListPanel(userId));
-        centerPanel.add(Box.createVerticalStrut(20));
-
-        centerPanel.add(new JLabel("내가 수강한 소모임"));
-        centerPanel.add(new PreviousClassesPanel(userId));
-
-        JScrollPane scrollPane = new JScrollPane(centerPanel);
-
-        add(infoPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-
     }
-    // 별점 패널 생성
+
     private JPanel makeStarPanel(double avgRating) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel label = new JLabel("나의 평점: ");
@@ -136,5 +131,4 @@ public class MyPageScreen extends JPanel {
         panel.add(new JLabel(String.format("(%.2f/5)", avgRating)));
         return panel;
     }
-
 }
