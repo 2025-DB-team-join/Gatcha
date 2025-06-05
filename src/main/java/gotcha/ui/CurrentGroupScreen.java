@@ -24,6 +24,39 @@ public class CurrentGroupScreen extends JPanel {
         };
         resultTable = new JTable(tableModel);
         add(new JScrollPane(resultTable), BorderLayout.CENTER);
+        
+        resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        	@Override
+        	public void mouseClicked(java.awt.event.MouseEvent evt) {
+        		int row = resultTable.rowAtPoint(evt.getPoint());
+        		if (row>=0) {
+        			String title = (String) tableModel.getValueAt(row, 0);
+        			
+        			int confirm = JOptionPane.showConfirmDialog(
+        				CurrentGroupScreen.this,
+        				"'" + title + "' 참여를 취소하시겠습니까?",
+        				"참여 취소 확인",
+        				JOptionPane.YES_NO_OPTION
+        			);
+        			
+        			if (confirm == JOptionPane.YES_OPTION) {
+        				List<CurrentGroupDAO.CurrentGroup> groupList = service.getCurrentGroups(userId);
+        				for (CurrentGroupDAO.CurrentGroup g : groupList) {
+        					if (g.getTitle().equals(title)) {
+        						boolean success = service.cancelParticipation(userId, g.getClassId());
+        						if (success) {
+        							JOptionPane.showMessageDialog(CurrentGroupScreen.this, "참여가 취소되었습니다.");
+        							loadCurrentGroups(userId);
+        						} else {
+        							JOptionPane.showMessageDialog(CurrentGroupScreen.this, "참여 취소를 실패했습니다. 다시 시도해주세요.");
+        						}
+        						break;
+        					}
+        				}
+        			}
+        		}
+        	}
+        });
 
         loadCurrentGroups(userId);
     }

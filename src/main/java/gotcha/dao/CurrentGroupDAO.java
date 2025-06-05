@@ -65,4 +65,19 @@ public class CurrentGroupDAO {
         }
         return result;
     }
+    
+    public boolean removeParticipation(int userId, int classId) {
+    	String sql = "DELETE FROM participation WHERE user_id = ? AND class_id = ?";
+    	
+    	try (Connection conn = DBConnector.getConnection();
+    			PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    		pstmt.setInt(1, userId);
+    		pstmt.setInt(2, classId);
+    		int affected = pstmt.executeUpdate();
+    		return affected > 0;
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+    }
 }
