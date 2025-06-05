@@ -5,6 +5,8 @@ import gotcha.service.UserRatingService;
 import gotcha.ui.CurrentGroupScreen;
 import gotcha.ui.home.HomeScreen;
 import gotcha.ui.UserReviewScreen;
+import gotcha.ui.mypage.PreviousClassesPanel;
+import gotcha.ui.mypage.ScrapListPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -96,8 +98,28 @@ public class MyPageScreen extends JPanel {
             dialog.setVisible(true);
         });
         backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
-    }
 
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.add(new JLabel("참여 중인 소모임"));
+        centerPanel.add(new CurrentGroupScreen(userId));
+        centerPanel.add(Box.createVerticalStrut(20));
+
+        centerPanel.add(new JLabel("스크랩한 소모임"));
+        centerPanel.add(new ScrapListPanel(userId));
+        centerPanel.add(Box.createVerticalStrut(20));
+
+        centerPanel.add(new JLabel("내가 수강한 소모임"));
+        centerPanel.add(new PreviousClassesPanel(userId));
+
+        JScrollPane scrollPane = new JScrollPane(centerPanel);
+
+        add(infoPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+    }
     // 별점 패널 생성
     private JPanel makeStarPanel(double avgRating) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -114,4 +136,5 @@ public class MyPageScreen extends JPanel {
         panel.add(new JLabel(String.format("(%.2f/5)", avgRating)));
         return panel;
     }
+
 }

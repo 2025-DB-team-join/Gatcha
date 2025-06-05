@@ -1,7 +1,7 @@
 package gotcha;
 
-import gotcha.ui.ScrapListScreen;
-import gotcha.ui.PreviousClassesScreen;
+import gotcha.ui.mypage.PreviousClassesPanel;
+import gotcha.ui.mypage.ScrapListPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,8 +15,8 @@ public class ScrapListScreenTest {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 800);
 
-        ScrapListScreen scrapListScreen = new ScrapListScreen(testUserId);
-        PreviousClassesScreen previousClassesScreen = new PreviousClassesScreen(testUserId);
+        ScrapListPanel scrapListScreen = new ScrapListPanel(testUserId);
+        PreviousClassesPanel previousClassesScreen = new PreviousClassesPanel(testUserId);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));

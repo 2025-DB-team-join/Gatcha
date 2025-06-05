@@ -24,7 +24,7 @@ public class GroupDAO {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, hostId);
             stmt.setString(2, title);
@@ -40,17 +40,91 @@ public class GroupDAO {
             }
             stmt.setString(8, status);
 
-            return stmt.executeUpdate() > 0;
+            int affected = stmt.executeUpdate();
+            if (affected == 0) return false;
+
+            // 소모임 ID 가져오기
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next()) {
+                int classId = keys.getInt(1);
+
+                // participation에 hostId 삽입
+                String participationSql = "INSERT INTO participation (user_id, class_id, joined_at) VALUES (?, ?, CURDATE())";
+                try (PreparedStatement ps2 = conn.prepareStatement(participationSql)) {
+                    ps2.setInt(1, hostId);
+                    ps2.setInt(2, classId);
+                    ps2.executeUpdate();
+                }
+
+
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
+
+
+    public boolean updateGroup(int classId, String title, String context, int maxParticipants, String mainRegion,
+                               String category, Timestamp recruitDeadline, String status) {
+        String sql = "UPDATE class SET title = ?, context = ?, max_participants = ?, main_region = ?, " +
+                "category = ?, recruit_deadline = ?, status = ? WHERE class_id = ?";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, title);
+            stmt.setString(2, context);
+            stmt.setInt(3, maxParticipants);
+            stmt.setString(4, mainRegion);
+            stmt.setString(5, category);
+            stmt.setTimestamp(6, recruitDeadline);
+            stmt.setString(7, status);
+            stmt.setInt(8, classId);
+
+            int updated = stmt.executeUpdate();
+
+            if (updated > 0) {
+                // 호스트 ID 가져오기
+                int hostId = -1;
+                String hostSql = "SELECT host_id FROM class WHERE class_id = ?";
+                try (PreparedStatement ps = conn.prepareStatement(hostSql)) {
+                    ps.setInt(1, classId);
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) hostId = rs.getInt("host_id");
+                }
+
+                // participation에 이미 참여했는지 확인
+                String checkSql = "SELECT COUNT(*) FROM participation WHERE user_id = ? AND class_id = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                    checkStmt.setInt(1, hostId);
+                    checkStmt.setInt(2, classId);
+                    ResultSet rs = checkStmt.executeQuery();
+                    if (rs.next() && rs.getInt(1) == 0) {
+                        // 참여 안 되어 있으면 추가
+                        String insertSql = "INSERT INTO participation (user_id, class_id, joined_at) VALUES (?, ?, CURDATE())";
+                        try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                            insertStmt.setInt(1, hostId);
+                            insertStmt.setInt(2, classId);
+                            insertStmt.executeUpdate();
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public List<Vector<String>> getGroupsForAttendance(String keyword, String category) {
         List<Vector<String>> result = new ArrayList<>();
 
-        // 오늘 날짜까지 스케줄 기준 실제 모임 횟수 산출 및 출석률 계산
         String sql =
                 "SELECT c.class_id, c.title, c.category, " +
                         "       CONCAT(ROUND(((SUM(sc.진행_횟수) - SUM(p.absent)) / SUM(sc.진행_횟수)) * 100, 0), '%') AS 출석률, " +
@@ -95,10 +169,10 @@ public class GroupDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Vector<String> row = new Vector<>();
-                row.add(rs.getString("title"));       // 소모임 이름
-                row.add(rs.getString("category"));    // 카테고리
-                row.add(rs.getString("출석률"));       // 출석률
-                row.add(rs.getString("횟수"));        // 실제 진행된 모임 횟수
+                row.add(rs.getString("title"));
+                row.add(rs.getString("category"));
+                row.add(rs.getString("출석률"));
+                row.add(rs.getString("횟수"));
                 result.add(row);
             }
 
@@ -144,4 +218,71 @@ public class GroupDAO {
         return result;
     }
 
+    public List<Vector<String>> selectGroupsByHost(int hostId) {
+        List<Vector<String>> result = new ArrayList<>();
+        String sql = "SELECT title, category, main_region, occurrences, max_participants " +
+                     "FROM class " +
+                     "WHERE host_id = ? AND deleted_at IS NULL " +
+                     "ORDER BY created_at DESC";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, hostId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));
+                row.add(rs.getString("category"));
+                row.add(rs.getString("main_region"));
+                row.add(String.valueOf(rs.getInt("occurrences")));
+                row.add(String.valueOf(rs.getInt("max_participants")));
+                result.add(row);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Vector<String> getGroupById(int classId) {
+        String sql = "SELECT title, context, category, main_region, status " +
+                     "FROM class " +
+                     "WHERE class_id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));
+                row.add(rs.getString("context"));
+                row.add(rs.getString("category"));
+                row.add(rs.getString("main_region"));
+                row.add(rs.getString("status"));
+                return row;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+	public boolean markGroupAsDeleted(int classId) {
+		String sql = "UPDATE class SET deleted_at = NOW() WHERE class_id = ?";
+	    try (Connection conn = DBConnector.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, classId);
+	        return ps.executeUpdate() > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 }
+
