@@ -47,27 +47,44 @@ public class HomeScreen extends JPanel {
         searchCategoryPanel.add(searchPanel, BorderLayout.WEST);
         searchCategoryPanel.add(categoryPanel, BorderLayout.EAST);
 
-        // topPanel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        // 하단 버튼 왼쪽 (create, manage, board, region/gender)
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton createBtn = new JButton("소모임 생성");
         JButton manageBtn = new JButton("소모임 관리");
         JButton boardBtn = new JButton("게시판");
-        JButton myPageBtn = new JButton("마이페이지");
-        buttonPanel.add(createBtn);
-        buttonPanel.add(manageBtn);
-        buttonPanel.add(boardBtn);
-        buttonPanel.add(myPageBtn);
+        JButton regionGenderBtn = new JButton("지역/성별로 조회");
+        leftButtonPanel.add(createBtn);
+        leftButtonPanel.add(manageBtn);
+        leftButtonPanel.add(boardBtn);
+        leftButtonPanel.add(regionGenderBtn);
 
+        // 하단 버튼 오른쪽 (mypage)
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JButton myPageBtn = new JButton("마이페이지");
+        rightButtonPanel.add(myPageBtn);
+
+        // 하단 전체 패널
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        // topPanel
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.add(searchCategoryPanel);
-        topPanel.add(buttonPanel);
 
         // centerPanel
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        JLabel hintLabel = new JLabel("※ 소모임을 더블클릭하면 스크랩할 수 있습니다.");
+        hintLabel.setForeground(Color.GRAY);
+        hintLabel.setFont(hintLabel.getFont().deriveFont(Font.ITALIC, 12f));
+        centerPanel.add(hintLabel);
+
         JScrollPane tableScroll = new JScrollPane(groupTable);
 
+        centerPanel.add(Box.createVerticalStrut(20));
         tableScroll.setBorder(BorderFactory.createTitledBorder("소모임 목록"));
         tableScroll.setPreferredSize(new Dimension(780, 200));
         centerPanel.add(tableScroll);
@@ -79,14 +96,10 @@ public class HomeScreen extends JPanel {
         top5Scroll.setPreferredSize(new Dimension(780, 200));
         centerPanel.add(top5Scroll);
 
-        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JButton regionGenderBtn = new JButton("지역/성별로 조회");
-        bottomButtonPanel.add(regionGenderBtn);
-
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
-        mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JScrollPane scrollPane = new JScrollPane(mainPanel);
         add(scrollPane, BorderLayout.CENTER);
@@ -101,7 +114,7 @@ public class HomeScreen extends JPanel {
         categoryToggle.addActionListener(e -> refreshTables());
         regionGenderBtn.addActionListener(e -> Main.setScreen(new RegionGenderScreen()));
 
-        mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         myPageBtn.addActionListener(e -> {
             if (userId != -1) {
@@ -162,13 +175,22 @@ public class HomeScreen extends JPanel {
         service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         DefaultTableModel top5Model = new DefaultTableModel();
-        top5Model.setColumnIdentifiers(new String[]{"소모임 이름", "카테고리", "출석률", "횟수"});
+        top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
         service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
-        groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        // groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        // top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         groupTable.setModel(mainModel);
+        groupTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+        groupTable.getColumnModel().getColumn(2).setPreferredWidth(400);
+        groupTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+        groupTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+
         top5Table.setModel(top5Model);
+        top5Table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        top5Table.getColumnModel().getColumn(1).setPreferredWidth(150);
+        top5Table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        top5Table.getColumnModel().getColumn(3).setPreferredWidth(400);
     }
 }

@@ -20,6 +20,8 @@ public class MyPageScreen extends JPanel {
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         Map<String, Object> userInfo = userService.getUserInfo(userId);
         if (!userInfo.isEmpty()) {
@@ -40,6 +42,7 @@ public class MyPageScreen extends JPanel {
             double avgRating = ratingService.getAverageRating(userId);
             JPanel starPanel = makeStarPanel(avgRating);
             starPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            starPanel.setBackground(Color.WHITE);
             infoPanel.add(starPanel);
 
             JButton myReviewBtn = new JButton("나에 대한 리뷰 보기");
@@ -59,33 +62,51 @@ public class MyPageScreen extends JPanel {
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
         // 참여 중인 소모임
-        centerPanel.add(new JLabel("참여 중인 소모임(주최 제외)"));
+        JLabel title1 = new JLabel("참여 중인 소모임(주최 제외)");
+        title1.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centerPanel.add(title1);
+
+        JLabel hintLabel1 = new JLabel("※ 소모임 이름을 더블클릭하면 참여를 취소할 수 있습니다.");
+        hintLabel1.setForeground(Color.GRAY);
+        hintLabel1.setFont(hintLabel1.getFont().deriveFont(Font.ITALIC, 12f));
+        centerPanel.add(hintLabel1);
+
         JScrollPane scroll1 = new JScrollPane(new CurrentGroupScreen(userId));
         scroll1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll1.getViewport().setPreferredSize(new Dimension(800, 150));
         centerPanel.add(scroll1);
-        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(Box.createVerticalStrut(5));
 
         // 스크랩한 소모임
-        centerPanel.add(new JLabel("스크랩한 소모임"));
+        JLabel title2 = new JLabel("스크랩한 소모임");
+        title2.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centerPanel.add(title2);
+
+        JLabel hintLabel2 = new JLabel("※ 더블클릭 시 스크랩을 취소할 수 있습니다.");
+        hintLabel2.setForeground(Color.GRAY);
+        hintLabel2.setFont(hintLabel2.getFont().deriveFont(Font.ITALIC, 12f));
+        centerPanel.add(hintLabel2);
+
         JScrollPane scroll2 = new JScrollPane(new ScrapListPanel(userId));
         scroll2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll2.getViewport().setPreferredSize(new Dimension(800, 150));
         centerPanel.add(scroll2);
-        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(Box.createVerticalStrut(5));
 
         // 내가 수강한 소모임
-        centerPanel.add(new JLabel("내가 수강한 소모임"));
+        JLabel title3 = new JLabel("이전 수강한 소모임");
+        title3.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centerPanel.add(title3);
+
         JScrollPane scroll3 = new JScrollPane(new PreviousClassesPanel(userId));
         scroll3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll3.getViewport().setPreferredSize(new Dimension(800, 150));
         centerPanel.add(scroll3);
 
-
-
+        // 하단 버튼 panel
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -97,7 +118,7 @@ public class MyPageScreen extends JPanel {
         leftPanel.add(deleteAccountBtn);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JButton backBtn = new JButton("뒤로가기");
+        JButton backBtn = new JButton("← 뒤로가기");
         rightPanel.add(backBtn);
 
         buttonPanel.add(leftPanel, BorderLayout.WEST);

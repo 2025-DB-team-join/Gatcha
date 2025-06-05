@@ -128,7 +128,7 @@ public class GroupDAO {
         String sql =
                 "SELECT c.class_id, c.title, c.category, " +
                         "       CONCAT(ROUND(((SUM(sc.진행_횟수) - SUM(p.absent)) / SUM(sc.진행_횟수)) * 100, 0), '%') AS 출석률, " +
-                        "       SUM(sc.진행_횟수) AS 횟수 " +
+                        "       c.context " +
                         "FROM class c " +
                         "JOIN participation p ON c.class_id = p.class_id " +
                         "JOIN (" +
@@ -155,7 +155,7 @@ public class GroupDAO {
             sql += "AND c.category = ? ";
         }
 
-        sql += "GROUP BY c.class_id, c.title, c.category ";
+        sql += "GROUP BY c.class_id, c.title, c.category, c.context "; // context 추가
         sql += "ORDER BY 출석률 DESC";
 
         try (Connection conn = gotcha.common.DBConnector.getConnection();
@@ -169,10 +169,10 @@ public class GroupDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Vector<String> row = new Vector<>();
-                row.add(rs.getString("title"));
-                row.add(rs.getString("category"));
-                row.add(rs.getString("출석률"));
-                row.add(rs.getString("횟수"));
+                row.add(rs.getString("title"));    // 0
+                row.add(rs.getString("category")); // 1
+                row.add(rs.getString("출석률"));     // 2
+                row.add(rs.getString("context"));  // 3: 모임 설명
                 result.add(row);
             }
 
