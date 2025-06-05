@@ -8,7 +8,7 @@ import java.sql.*;
 public class PublicGroupDAO {
     public PublicGroup getPublicGroupById(int classId) {
         String sql =
-            "SELECT c.class_id, c.title, c.category, c.context, c.main_region, u.nickname AS host_nickname, " +
+            "SELECT c.class_id, c.host_id, c.title, c.category, c.context, c.main_region, u.nickname AS host_nickname, " +
             "  (SELECT GROUP_CONCAT(DISTINCT CASE s.day_of_week " +
             "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
             "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
@@ -29,6 +29,7 @@ public class PublicGroupDAO {
             if (rs.next()) {
                 return new PublicGroup(
                     rs.getInt("class_id"),
+                    rs.getInt("host_id"),
                     rs.getString("title"),
                     rs.getString("category"),
                     rs.getString("context"),

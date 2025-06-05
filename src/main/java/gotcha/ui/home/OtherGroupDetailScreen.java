@@ -6,10 +6,13 @@ import gotcha.dao.PublicGroupDAO;
 import gotcha.dto.PublicGroup;
 import gotcha.service.JoinService;
 import gotcha.service.ScrapService;
+import gotcha.ui.review.HostReviewScreen;
+import gotcha.ui.review.UserReviewScreen;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.security.Provider.Service;
 
 public class OtherGroupDetailScreen extends JPanel {
     private PublicGroup group;
@@ -85,9 +88,15 @@ public class OtherGroupDetailScreen extends JPanel {
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton hostReviewBtn = new JButton("주최자 리뷰 조회");
         scrapBtn = new JButton(isScrapped ? "스크랩 취소" : "스크랩하기");
         JButton joinBtn = new JButton("가입하기");
         JButton backBtn = new JButton("뒤로가기");
+
+        hostReviewBtn.addActionListener(e -> {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            new HostReviewScreen(parentFrame, group.getClassId()).setVisible(true);
+        });
 
         scrapBtn.addActionListener(e -> {
             boolean success;
@@ -129,6 +138,7 @@ public class OtherGroupDetailScreen extends JPanel {
 
         backBtn.addActionListener(e -> Main.setScreen(new HomeScreen()));
 
+        panel.add(hostReviewBtn);
         panel.add(scrapBtn);
         panel.add(joinBtn);
         panel.add(backBtn);
