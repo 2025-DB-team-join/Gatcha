@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.mypage;
 
 import gotcha.service.CurrentGroupService;
 import gotcha.dao.CurrentGroupDAO;

@@ -186,7 +186,7 @@ public class GroupDAO {
     public List<Vector<String>> getGroupDetails(String keyword, String category) {
         List<Vector<String>> result = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT c.title, c.context, c.status, c.main_region " +
+                "SELECT c.class_id, c.title, c.context, c.status, c.main_region " +
                         "FROM class c " +
                         "WHERE c.deleted_at IS NULL AND c.title LIKE ? "
         );
@@ -206,6 +206,7 @@ public class GroupDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Vector<String> row = new Vector<>();
+                row.add(String.valueOf(rs.getInt("class_id")));
                 row.add(rs.getString("title"));
                 row.add(rs.getString("context"));
                 row.add(rs.getString("status"));
@@ -217,6 +218,7 @@ public class GroupDAO {
         }
         return result;
     }
+
 
     public List<Vector<String>> selectGroupsByHost(int hostId) {
         List<Vector<String>> result = new ArrayList<>();

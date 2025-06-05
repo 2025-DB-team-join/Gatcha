@@ -4,6 +4,7 @@ import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.service.HomeService;
+import gotcha.service.ScrapService;
 import gotcha.ui.GroupFormScreen;
 import gotcha.ui.board.BoardScreen;
 import gotcha.ui.manage.ManageGroupScreen;
@@ -19,6 +20,7 @@ public class HomeScreen extends JPanel {
     private JComboBox<String> categoryToggle;
     private JTextField searchField;
     private final HomeService service = new HomeService();
+    private final ScrapService scrapService = new ScrapService();
 
     public HomeScreen() {
         FontLoader.applyGlobalFont(14f);
@@ -65,6 +67,7 @@ public class HomeScreen extends JPanel {
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         JScrollPane tableScroll = new JScrollPane(groupTable);
+
         tableScroll.setBorder(BorderFactory.createTitledBorder("소모임 목록"));
         tableScroll.setPreferredSize(new Dimension(780, 200));
         centerPanel.add(tableScroll);
@@ -110,11 +113,52 @@ public class HomeScreen extends JPanel {
 
         // 초기 로드
         refreshTables();
+
+        groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = groupTable.rowAtPoint(evt.getPoint());
+                if (row >= 0 && evt.getClickCount() == 2) {
+                    String title = (String) groupTable.getValueAt(row, 1);
+                    int confirm = JOptionPane.showConfirmDialog(
+                            HomeScreen.this,
+                            "'" + title + "' 소모임을 스크랩하시겠습니까?",
+                            "스크랩 확인",
+                            JOptionPane.YES_NO_OPTION
+                    );
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        int classId = Integer.parseInt((String) groupTable.getValueAt(row, 0));
+                        boolean success = scrapService.addScrap(Session.loggedInUserId, classId);
+                        if (success) {
+                            JOptionPane.showMessageDialog(HomeScreen.this, "스크랩이 완료되었습니다.");
+                        } else {
+                            JOptionPane.showMessageDialog(HomeScreen.this, "이미 스크랩했거나 실패했습니다.");
+                        }
+                    }
+                }
+            }
+        });
+
+
     }
 
     private void refreshTables() {
-        DefaultTableModel mainModel = new DefaultTableModel();
-        mainModel.setColumnIdentifiers(new String[]{"소모임 이름", "소개", "상태", "지역"});
+        DefaultTableModel mainModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        mainModel.setColumnIdentifiers(new String[]{"class_id", "소모임 이름", "소개", "상태", "지역"}); // class_id 포함
+
+        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
+
+        groupTable.setModel(mainModel);
+        groupTable.getColumnModel().getColumn(0).setMinWidth(0);
+        groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        groupTable.getColumnModel().getColumn(0).setWidth(0);
+
         service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         DefaultTableModel top5Model = new DefaultTableModel();
