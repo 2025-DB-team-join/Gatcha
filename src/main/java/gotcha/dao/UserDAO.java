@@ -3,7 +3,9 @@ package gotcha.dao;
 import gotcha.common.DBConnector;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserDAO {
@@ -11,10 +13,10 @@ public class UserDAO {
         String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, email);
-                stmt.setString(2, password);
-                ResultSet rs = stmt.executeQuery();
-                return rs.next();
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -25,7 +27,7 @@ public class UserDAO {
         String sql = "SELECT 1 FROM user WHERE email = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, email);
+            stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
@@ -38,12 +40,12 @@ public class UserDAO {
         String sql = "INSERT INTO user (username, nickname, password, email, gender, region, birthyear) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, username);
-                stmt.setString(2, nickname);
-                stmt.setString(3, password);
-                stmt.setString(4, email);
-                stmt.setString(5, gender);
-                stmt.setString(6, region);
+            stmt.setString(1, username);
+            stmt.setString(2, nickname);
+            stmt.setString(3, password);
+            stmt.setString(4, email);
+            stmt.setString(5, gender);
+            stmt.setString(6, region);
             if (birthyear != null) stmt.setInt(7, birthyear);
             else stmt.setNull(7, Types.INTEGER);
 
@@ -163,5 +165,34 @@ public class UserDAO {
         return false;
     }
 
+    // 참여 중인 소모임 목록 조회
+    public List<Map<String, Object>> getParticipatedClasses(int userId) {
+        List<Map<String, Object>> classList = new ArrayList<>();
+        String sql = "SELECT c.class_id, c.title, s.day_of_week, s.start_time, s.duration " +
+                "FROM participation p " +
+                "JOIN class c ON p.class_id = c.class_id " +
+                "LEFT JOIN schedule s ON c.class_id = s.class_id " +
+                "WHERE p.user_id = ? " +
+                "ORDER BY c.class_id";
 
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("class_id", rs.getInt("class_id"));
+                row.put("title", rs.getString("title"));
+                row.put("day_of_week", rs.getString("day_of_week"));
+                row.put("start_time", rs.getTime("start_time"));
+                row.put("duration", rs.getInt("duration"));
+                classList.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return classList;
+    }
 }

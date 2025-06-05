@@ -1,4 +1,4 @@
-package gotcha.ui.manage;
+package gotcha.ui.board;
 
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
