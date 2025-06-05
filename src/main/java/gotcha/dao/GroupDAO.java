@@ -186,9 +186,9 @@ public class GroupDAO {
     public List<Vector<String>> getGroupDetails(String keyword, String category) {
         List<Vector<String>> result = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT c.title, c.context, c.status, c.main_region " +
-                        "FROM class c " +
-                        "WHERE c.deleted_at IS NULL AND c.title LIKE ? "
+            "SELECT c.class_id, c.title, c.context, c.status, c.main_region " +
+            "FROM class c " +
+            "WHERE c.deleted_at IS NULL AND c.title LIKE ? "
         );
         if (!"전체".equals(category)) {
             sql.append("AND c.category = ? ");
@@ -206,6 +206,7 @@ public class GroupDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Vector<String> row = new Vector<>();
+                row.add(String.valueOf(rs.getInt("class_id"))); // classId 추가
                 row.add(rs.getString("title"));
                 row.add(rs.getString("context"));
                 row.add(rs.getString("status"));
@@ -217,6 +218,7 @@ public class GroupDAO {
         }
         return result;
     }
+
 
     public List<Vector<String>> selectGroupsByHost(int hostId) {
         List<Vector<String>> result = new ArrayList<>();
@@ -273,6 +275,32 @@ public class GroupDAO {
         return null;
     }
 
+    public Vector<String> getGroupDetailScreen(int classId) {
+        String sql = "SELECT title, category, context, main_region, status " +
+                     "FROM class WHERE class_id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));
+                row.add(rs.getString("category"));
+                row.add(rs.getString("context"));
+                row.add(rs.getString("main_region"));
+                row.add(rs.getString("status"));
+                return row;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    
 	public boolean markGroupAsDeleted(int classId) {
 		String sql = "UPDATE class SET deleted_at = NOW() WHERE class_id = ?";
 	    try (Connection conn = DBConnector.getConnection();

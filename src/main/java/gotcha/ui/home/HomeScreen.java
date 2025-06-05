@@ -3,6 +3,7 @@ package gotcha.ui.home;
 import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
+import gotcha.dto.PublicGroup;
 import gotcha.service.HomeService;
 import gotcha.ui.GroupFormScreen;
 import gotcha.ui.board.BoardScreen;
@@ -12,6 +13,10 @@ import gotcha.ui.mypage.MyPageScreen;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.Vector;
 
 public class HomeScreen extends JPanel {
 
@@ -19,14 +24,13 @@ public class HomeScreen extends JPanel {
     private JComboBox<String> categoryToggle;
     private JTextField searchField;
     private final HomeService service = new HomeService();
+    private List<Vector<String>> currentGroupData;
 
     public HomeScreen() {
         FontLoader.applyGlobalFont(14f);
-        groupTable = new JTable();
         top5Table = new JTable();
         int userId = Session.loggedInUserId;
 
-        // 검색 + 카테고리 패널
         JPanel searchCategoryPanel = new JPanel(new BorderLayout());
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -45,7 +49,6 @@ public class HomeScreen extends JPanel {
         searchCategoryPanel.add(searchPanel, BorderLayout.WEST);
         searchCategoryPanel.add(categoryPanel, BorderLayout.EAST);
 
-        // topPanel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         JButton createBtn = new JButton("소모임 생성");
         JButton manageBtn = new JButton("소모임 관리");
@@ -61,9 +64,18 @@ public class HomeScreen extends JPanel {
         topPanel.add(searchCategoryPanel);
         topPanel.add(buttonPanel);
 
-        // centerPanel
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        DefaultTableModel initialMainModel = new DefaultTableModel();
+        initialMainModel.setColumnIdentifiers(new String[]{"소모임 이름", "소개", "상태", "지역"});
+        groupTable = new JTable(initialMainModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         JScrollPane tableScroll = new JScrollPane(groupTable);
         tableScroll.setBorder(BorderFactory.createTitledBorder("소모임 목록"));
         tableScroll.setPreferredSize(new Dimension(780, 200));
@@ -88,7 +100,6 @@ public class HomeScreen extends JPanel {
         JScrollPane scrollPane = new JScrollPane(mainPanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        // 이벤트 처리
         createBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
         boardBtn.addActionListener(e -> Main.setScreen(new BoardScreen()));
 
@@ -98,8 +109,6 @@ public class HomeScreen extends JPanel {
         categoryToggle.addActionListener(e -> refreshTables());
         regionGenderBtn.addActionListener(e -> Main.setScreen(new RegionGenderScreen()));
 
-        mainPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
-
         myPageBtn.addActionListener(e -> {
             if (userId != -1) {
                 Main.setScreen(new MyPageScreen(userId));
@@ -108,23 +117,41 @@ public class HomeScreen extends JPanel {
             }
         });
 
-        // 초기 로드
+        groupTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = groupTable.getSelectedRow();
+                if (row != -1 && e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                    e.consume();
+                    int classId = Integer.parseInt(currentGroupData.get(row).get(0));
+                    PublicGroup group = service.getGroupDetailScreen(classId);
+                    Main.setScreen(new OtherGroupDetailScreen(group, userId));
+                }
+            }
+        });
+
+
         refreshTables();
     }
 
     private void refreshTables() {
         DefaultTableModel mainModel = new DefaultTableModel();
-        mainModel.setColumnIdentifiers(new String[]{"소모임 이름", "소개", "상태", "지역"});
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
+        mainModel.setColumnIdentifiers(new String[]{"ID", "소모임 이름", "소개", "상태", "지역"});
+        currentGroupData = service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
+        groupTable.setModel(mainModel);
+        groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        // ID 컬럼 숨기기
+        groupTable.getColumnModel().getColumn(0).setMinWidth(0);
+        groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        groupTable.getColumnModel().getColumn(0).setWidth(0);
+        
         DefaultTableModel top5Model = new DefaultTableModel();
         top5Model.setColumnIdentifiers(new String[]{"소모임 이름", "카테고리", "출석률", "횟수"});
         service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
-        groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-        groupTable.setModel(mainModel);
         top5Table.setModel(top5Model);
+        top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
 }
