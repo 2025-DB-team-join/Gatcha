@@ -74,5 +74,7 @@ public class BoardReadScreen extends JFrame {
 			contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 		}
 		
+		contentPanel.revalidate();
+		contentPanel.repaint();
 	}
 }

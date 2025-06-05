@@ -6,11 +6,11 @@ import java.util.*;
 
 public class BoardReadDAO {
 	public List<Map<String, Object>> getBoards(int userId) {
-		String sql = "SELECT b.board_id, b.title, b.context, b.creadted_at, c.class_name"
-				+ "FROM board b"
-				+ "JOIN class c ON b.class_id = c.class_id"
-				+ "JOIN participation p ON b.class_id=p.class_id"
-				+ "WHERE p.user_id = ?"
+		String sql = "SELECT b.board_id, b.title, b.context, b.created_at, c.class_id "
+				+ "FROM board b "
+				+ "JOIN class c ON b.class_id = c.class_id "
+				+ "JOIN participation p ON b.class_id=p.class_id "
+				+ "WHERE p.user_id = ? "
 				+ "ORDER BY b.created_at DESC";
 		List<Map<String, Object>> boardList = new ArrayList<>();
 		
@@ -25,7 +25,7 @@ public class BoardReadDAO {
 				board.put("title", rs.getString("title"));
 				board.put("context", rs.getString("context"));
 				board.put("created_at", rs.getTimestamp("created_at"));
-				board.put("class_name", rs.getString("class_name"));
+				board.put("class_id", rs.getString("class_id"));
 				boardList.add(board);
 			}
 		} catch (SQLException e) {
