@@ -91,7 +91,7 @@ public class BoardDetailScreen extends JPanel {
         List<Map<String, Object>> comments = commentService.getCommentsByBoardId(boardId);
 
         for (Map<String, Object> comment : comments) {
-            String writer = (String) comment.get("writer_nickname");
+            String writer = (String) comment.get("nickname");
             String createdAt = comment.get("created_at").toString();
             String content = (String) comment.get("content");
 
