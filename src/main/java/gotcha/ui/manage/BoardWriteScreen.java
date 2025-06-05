@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/main/java/gotcha/ui/board/BoardWriteScreen.java
-package gotcha.ui.board;
-========
 package gotcha.ui.manage;
->>>>>>>> origin:src/main/java/gotcha/ui/manage/BoardWriteScreen.java
 
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
