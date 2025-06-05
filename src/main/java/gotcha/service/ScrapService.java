@@ -14,4 +14,8 @@ public class ScrapService {
 	public List<Vector<String>> getScrappedClasses(int userId) {
 		return scrapDAO.getScrappedClass(userId);
 	}
+	
+	public boolean cancelScrap(int userId, int classId) {
+        return scrapDAO.cancelScrap(userId, classId);
+    }
 }
