@@ -1,90 +1,130 @@
 package gotcha.ui.manage;
 
 import gotcha.Main;
+import gotcha.common.FontLoader;
+import gotcha.dao.CurrentGroupDAO;
 import gotcha.dao.HostedClassDAO.HostedClass;
+import gotcha.dto.PublicGroup;
+import gotcha.service.CurrentGroupService;
 import gotcha.service.ManageGroupService;
+import gotcha.ui.home.OtherGroupDetailScreen;
+import gotcha.ui.manage.MyGroupDetailScreen;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.Vector;
 
 public class ManageGroupScreen extends JPanel {
-    private final ManageGroupService service = new ManageGroupService();
-    private JTable groupTable;
+    private final ManageGroupService manageService = new ManageGroupService();
+    private final CurrentGroupService currentService = new CurrentGroupService();
+
+    private JTable hostGroupTable, participantGroupTable;
     private JComboBox<String> statusFilter;
-    private int userId;
+    private DefaultTableModel participantModel;
 
     private List<HostedClass> hostedClasses;
+    private List<CurrentGroupDAO.CurrentGroup> currentGroups;
+
+    private int userId;
 
     public ManageGroupScreen(int userId) {
         this.userId = userId;
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createTitledBorder("내가 만든 소모임 관리"));
+        setBorder(BorderFactory.createTitledBorder("소모임 관리"));
 
-        // 상태 필터 드롭다운
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JPanel hostPanel = new JPanel(new BorderLayout());
+        hostPanel.setBorder(BorderFactory.createTitledBorder("주최중인 소모임"));
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel statusLabel = new JLabel("상태 필터:");
         String[] statuses = {"전체", "모집중", "진행중", "진행완료"};
         statusFilter = new JComboBox<>(statuses);
         filterPanel.add(statusLabel);
         filterPanel.add(statusFilter);
-        add(filterPanel, BorderLayout.NORTH);
+        hostPanel.add(filterPanel, BorderLayout.NORTH);
 
-        // 테이블
-        groupTable = new JTable();
-        JScrollPane tableScroll = new JScrollPane(groupTable);
-        add(tableScroll, BorderLayout.CENTER);
+        hostGroupTable = new JTable();
+        JScrollPane hostScroll = new JScrollPane(hostGroupTable);
+        hostPanel.add(hostScroll, BorderLayout.CENTER);
 
-        // 버튼 패널
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JButton viewBtn = new JButton("상세 보기");
+        JButton viewHostBtn = new JButton("상세 보기");
+        viewHostBtn.addActionListener(e -> handleHostView());
+        hostPanel.add(viewHostBtn, BorderLayout.SOUTH);
+
+        JPanel participantPanel = new JPanel(new BorderLayout());
+        participantPanel.setBorder(BorderFactory.createTitledBorder("참여중인 소모임"));
+
+        String[] cols = {"이름", "카테고리", "지역", "주최자", "운영 요일"};
+        participantModel = new DefaultTableModel(cols, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        participantGroupTable = new JTable(participantModel);
+        JScrollPane participantScroll = new JScrollPane(participantGroupTable);
+        participantPanel.add(participantScroll, BorderLayout.CENTER);
+
+        JButton viewParticipantBtn = new JButton("상세 보기");
+        viewParticipantBtn.addActionListener(e -> handleParticipantView());
+        participantPanel.add(viewParticipantBtn, BorderLayout.SOUTH);
+
+        JPanel centerPanel = new JPanel(new GridLayout(2, 1));
+        centerPanel.add(hostPanel);
+        centerPanel.add(participantPanel);
+        add(centerPanel, BorderLayout.CENTER);
+
         JButton backBtn = new JButton("뒤로가기");
-        buttonPanel.add(viewBtn);
-        buttonPanel.add(backBtn);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // 이벤트 처리
-        statusFilter.addActionListener(e -> loadGroupTable(userId));
-        viewBtn.addActionListener(e -> handleView());
         backBtn.addActionListener(e -> Main.setScreen(new gotcha.ui.home.HomeScreen()));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(backBtn);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        loadGroupTable(userId);
+        statusFilter.addActionListener(e -> loadHostGroups());
+
+        loadHostGroups();
+        loadParticipantGroups();
     }
 
-    private void loadGroupTable(int userId) {
+    private void loadHostGroups() {
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(new String[]{"클래스명", "카테고리", "지역", "요일", "인원 현황", "상태"});
 
+        hostedClasses = manageService.getMyGroups(userId);
         String selectedStatus = (String) statusFilter.getSelectedItem();
-        hostedClasses = service.getMyGroups(userId);
 
-        if (hostedClasses != null) {
-            for (HostedClass row : hostedClasses) {
-                if (!selectedStatus.equals("전체") && !row.getStatus().equals(selectedStatus)) continue;
-
-                Vector<String> displayRow = new Vector<>();
-                displayRow.add(row.getTitle());
-                displayRow.add(row.getCategory());
-                displayRow.add(row.getRegion());
-                displayRow.add(row.getDays());
-                displayRow.add(row.getUserCount() + " / " + row.getMax());
-                displayRow.add(row.getStatus());
-                model.addRow(displayRow);
-            }
+        for (HostedClass row : hostedClasses) {
+            if (!"전체".equals(selectedStatus) && !row.getStatus().equals(selectedStatus)) continue;
+            Vector<String> displayRow = new Vector<>();
+            displayRow.add(row.getTitle());
+            displayRow.add(row.getCategory());
+            displayRow.add(row.getRegion());
+            displayRow.add(row.getDays());
+            displayRow.add(row.getUserCount() + " / " + row.getMax());
+            displayRow.add(row.getStatus());
+            model.addRow(displayRow);
         }
-        groupTable.setModel(model);
+        hostGroupTable.setModel(model);
     }
 
-    private void handleView() {
-        int selected = groupTable.getSelectedRow();
+    private void loadParticipantGroups() {
+        participantModel.setRowCount(0);
+        currentGroups = currentService.getCurrentGroups(userId);
+
+        for (CurrentGroupDAO.CurrentGroup g : currentGroups) {
+            participantModel.addRow(new Object[]{
+                g.getTitle(), g.getCategory(), g.getRegion(), g.getHostNickname(), g.getDays()
+            });
+        }
+    }
+
+    private void handleHostView() {
+        int selected = hostGroupTable.getSelectedRow();
         if (selected == -1) {
             JOptionPane.showMessageDialog(this, "상세 조회할 소모임을 선택해주세요.");
             return;
         }
-
-        String selectedTitle = (String) groupTable.getValueAt(selected, 0);
+        String selectedTitle = (String) hostGroupTable.getValueAt(selected, 0);
         int selectedClassId = -1;
 
         for (HostedClass cls : hostedClasses) {
@@ -100,6 +140,23 @@ public class ManageGroupScreen extends JPanel {
             JOptionPane.showMessageDialog(this, "소모임 ID를 찾을 수 없습니다.");
         }
     }
-}
 
+    private void handleParticipantView() {
+        int selected = participantGroupTable.getSelectedRow();
+        if (selected == -1) {
+            JOptionPane.showMessageDialog(this, "상세 조회할 소모임을 선택해주세요.");
+            return;
+        }
+        String selectedTitle = (String) participantGroupTable.getValueAt(selected, 0);
+
+        for (CurrentGroupDAO.CurrentGroup g : currentGroups) {
+            if (g.getTitle().equals(selectedTitle)) {
+                Main.setScreen(new OtherGroupDetailScreen(g.getClassId(), userId));
+                return;
+            }
+        }
+
+        JOptionPane.showMessageDialog(this, "소모임 ID를 찾을 수 없습니다.");
+    }
+}
 
