@@ -52,4 +52,24 @@ public class CommentDAO {
 
         return false;
     }
+    public boolean insertReply(int boardId, int userId, String content, int parentId) {
+        String sql = "INSERT INTO comment (board_id, user_id, content, parent_id) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, boardId);
+            stmt.setInt(2, userId);
+            stmt.setString(3, content);
+            stmt.setInt(4, parentId);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
 }

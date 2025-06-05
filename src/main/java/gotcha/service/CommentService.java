@@ -15,4 +15,9 @@ public class CommentService {
     public boolean addComment(int boardId, int userId, String content) {
         return commentDAO.insertComment(boardId, userId, content);
     }
+
+    public boolean addReply(int boardId, int userId, String content, int parentId) {
+        return commentDAO.insertReply(boardId, userId, content, parentId);
+    }
+
 }
