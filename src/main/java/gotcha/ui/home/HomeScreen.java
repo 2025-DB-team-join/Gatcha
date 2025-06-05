@@ -6,6 +6,7 @@ import gotcha.common.Session;
 import gotcha.service.HomeService;
 import gotcha.ui.GroupFormScreen;
 import gotcha.ui.board.BoardScreen;
+import gotcha.ui.manage.ManageGroupScreen;
 import gotcha.ui.mypage.MyPageScreen;
 
 import javax.swing.*;
@@ -47,9 +48,11 @@ public class HomeScreen extends JPanel {
         // topPanel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         JButton createBtn = new JButton("소모임 생성");
+        JButton manageBtn = new JButton("소모임 관리");
         JButton boardBtn = new JButton("게시판");
         JButton myPageBtn = new JButton("마이페이지");
         buttonPanel.add(createBtn);
+        buttonPanel.add(manageBtn);
         buttonPanel.add(boardBtn);
         buttonPanel.add(myPageBtn);
 
@@ -98,6 +101,7 @@ public class HomeScreen extends JPanel {
         });
 
         myPageBtn.addActionListener(e -> Main.setScreen(new MyPageScreen(userId)));
+        manageBtn.addActionListener(e -> Main.setScreen(new ManageGroupScreen(userId)));
         searchBtn.addActionListener(e -> refreshTables());
         categoryToggle.addActionListener(e -> refreshTables());
         regionGenderBtn.addActionListener(e -> Main.setScreen(new RegionGenderScreen()));
