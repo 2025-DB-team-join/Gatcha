@@ -17,7 +17,17 @@ public class CommentService {
     }
 
     public boolean addReply(int boardId, int userId, String content, int parentId) {
+        System.out.println("📥 Reply Insert: boardId=" + boardId + ", parentId=" + parentId + ", content=" + content);
         return commentDAO.insertReply(boardId, userId, content, parentId);
     }
+
+    public boolean updateComment(int commentId, String content) {
+        return new CommentDAO().updateComment(commentId, content);
+    }
+
+    public boolean deleteComment(int commentId) {
+        return new CommentDAO().deleteComment(commentId);
+    }
+
 
 }

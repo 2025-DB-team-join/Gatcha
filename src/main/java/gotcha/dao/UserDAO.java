@@ -168,14 +168,15 @@ public class UserDAO {
     // 참여 중인 소모임 목록 조회
     public List<Map<String, Object>> getParticipatedClasses(int userId) {
         List<Map<String, Object>> classList = new ArrayList<>();
-
-        String sql = "SELECT c.class_id, c.title FROM participation p " +
+        String sql = "SELECT c.class_id, c.title, s.day_of_week, s.start_time, s.duration " +
+                "FROM participation p " +
                 "JOIN class c ON p.class_id = c.class_id " +
-                "WHERE p.user_id = ?";
+                "LEFT JOIN schedule s ON c.class_id = s.class_id " +
+                "WHERE p.user_id = ? " +
+                "ORDER BY c.class_id";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
@@ -183,14 +184,15 @@ public class UserDAO {
                 Map<String, Object> row = new HashMap<>();
                 row.put("class_id", rs.getInt("class_id"));
                 row.put("title", rs.getString("title"));
+                row.put("day_of_week", rs.getString("day_of_week"));
+                row.put("start_time", rs.getTime("start_time"));
+                row.put("duration", rs.getInt("duration"));
                 classList.add(row);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return classList;
     }
-
 }

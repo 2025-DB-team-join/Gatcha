@@ -9,7 +9,7 @@ public class CommentDAO {
 
     public List<Map<String, Object>> findCommentsByBoardId(int boardId) {
         List<Map<String, Object>> comments = new ArrayList<>();
-        String sql = "SELECT c.comment_id, c.content, c.created_at, u.nickname " +
+        String sql = "SELECT c.comment_id, c.content, c.created_at, c.parent_id, u.nickname " +
                 "FROM comment c JOIN user u ON c.user_id = u.user_id " +
                 "WHERE c.board_id = ? AND c.deleted_at IS NULL " +
                 "ORDER BY c.created_at ASC";
@@ -26,6 +26,7 @@ public class CommentDAO {
                 comment.put("content", rs.getString("content"));
                 comment.put("created_at", rs.getTimestamp("created_at"));
                 comment.put("nickname", rs.getString("nickname"));
+                comment.put("parent_id", rs.getObject("parent_id"));  // ✅ 여기!!
                 comments.add(comment);
             }
         } catch (SQLException e) {
@@ -34,6 +35,7 @@ public class CommentDAO {
 
         return comments;
     }
+
 
     public boolean insertComment(int boardId, int userId, String content) {
         String sql = "INSERT INTO comment (board_id, user_id, content) VALUES (?, ?, ?)";
@@ -71,5 +73,29 @@ public class CommentDAO {
         return false;
     }
 
+    public boolean updateComment(int commentId, String content) {
+        String sql = "UPDATE comment SET content = ? WHERE comment_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, content);
+            stmt.setInt(2, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteComment(int commentId) {
+        String sql = "UPDATE comment SET deleted_at = CURRENT_TIMESTAMP WHERE comment_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

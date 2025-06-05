@@ -89,7 +89,7 @@ public class BoardDAO{
 
 	public Map<String, Object> findPostById(int boardId) {
 		Map<String, Object> post = new HashMap<>();
-		String sql = "SELECT b.board_id, b.title, b.context, b.created_at, u.nickname AS writer " +
+		String sql = "SELECT b.board_id, b.title, b.context, b.created_at, b.class_id, u.nickname AS writer " +
 				"FROM board b JOIN user u ON b.user_id = u.user_id " +
 				"WHERE b.board_id = ? AND b.deleted_at IS NULL";
 
@@ -104,6 +104,7 @@ public class BoardDAO{
 				post.put("title", rs.getString("title"));
 				post.put("context", rs.getString("context"));
 				post.put("created_at", rs.getTimestamp("created_at"));
+				post.put("class_id", rs.getInt("class_id"));
 				post.put("writer", rs.getString("writer"));
 			}
 		} catch (SQLException e) {

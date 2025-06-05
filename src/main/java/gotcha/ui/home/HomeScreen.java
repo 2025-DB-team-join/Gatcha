@@ -90,15 +90,7 @@ public class HomeScreen extends JPanel {
 
         // 이벤트 처리
         createBtn.addActionListener(e -> Main.setScreen(new GroupFormScreen()));
-        boardBtn.addActionListener(e -> {
-            JFrame boardFrame = new JFrame("게시판");
-            boardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            boardFrame.setSize(800, 550);
-            boardFrame.setLocationRelativeTo(null);
-
-            boardFrame.add(new BoardScreen());
-            boardFrame.setVisible(true);
-        });
+        boardBtn.addActionListener(e -> Main.setScreen(new BoardScreen()));
 
         myPageBtn.addActionListener(e -> Main.setScreen(new MyPageScreen(userId)));
         manageBtn.addActionListener(e -> Main.setScreen(new ManageGroupScreen(userId)));

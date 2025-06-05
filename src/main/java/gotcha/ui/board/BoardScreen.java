@@ -1,5 +1,6 @@
 package gotcha.ui.board;
 
+import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.dao.UserDAO;
@@ -21,17 +22,33 @@ public class BoardScreen extends JPanel {
 
         int userId = Session.loggedInUserId;
 
+        // 상단 패널 구성
+        JPanel topPanel = new JPanel(new BorderLayout());
+
+        JButton backButton = new JButton("← 뒤로가기");
+        backButton.setFont(FontLoader.loadCustomFont(14f));
+        backButton.addActionListener(e -> {
+            // 이전 화면으로 전환 (예: 홈 화면)
+            Main.setScreen(new gotcha.ui.home.HomeScreen());
+        });
+        topPanel.add(backButton, BorderLayout.WEST);
+
         JLabel titleLabel = new JLabel("참여 중인 소모임");
         titleLabel.setFont(FontLoader.loadCustomFont(20f));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(titleLabel, BorderLayout.NORTH);
+        topPanel.add(titleLabel, BorderLayout.CENTER);
 
-        tableModel = new DefaultTableModel(new String[]{"소모임 ID", "소모임 이름"}, 0) {
+        add(topPanel, BorderLayout.NORTH);
+
+        tableModel = new DefaultTableModel(new String[]{
+                "소모임 ID", "소모임 이름", "요일", "시작 시간", "진행 시간(분)"
+        }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
         classTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(classTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -60,23 +77,18 @@ public class BoardScreen extends JPanel {
         for (Map<String, Object> row : classList) {
             tableModel.addRow(new Object[]{
                     row.get("class_id"),
-                    row.get("title")
+                    row.get("title"),
+                    row.get("day_of_week") != null ? row.get("day_of_week") : "-",
+                    row.get("start_time") != null ? row.get("start_time").toString() : "-",
+                    row.get("duration") != null ? row.get("duration").toString() : "-"
             });
         }
+
     }
 
-    // 별도 JFrame으로 ClassBoardScreen 열기
     private void openClassBoardWindow(int classId) {
-        JFrame frame = new JFrame("소모임 게시판 - ID: " + classId);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setLocationRelativeTo(null);
-
-        frame.setContentPane(new ClassBoardScreen(classId));
-
-        frame.setAlwaysOnTop(true);
-        frame.setVisible(true);
-        frame.setAlwaysOnTop(false);
+        Main.setScreen(new ClassBoardScreen(classId));
     }
+
 }
 
