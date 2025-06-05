@@ -29,9 +29,7 @@ public class BoardDetailScreen extends JPanel {
         Map<String, Object> post = boardService.getPostById(boardId);
 
         JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-
-        JPanel topPanel = new JPanel(new BorderLayout());
+        headerPanel.setLayout(new BorderLayout());
 
         JButton backButton = new JButton("← 뒤로가기");
         backButton.setFont(FontLoader.loadCustomFont(14f));
@@ -39,19 +37,21 @@ public class BoardDetailScreen extends JPanel {
             int classId = (int) post.get("class_id");
             Main.setScreen(new ClassBoardScreen(classId));
         });
-        topPanel.add(backButton, BorderLayout.WEST);
+        headerPanel.add(backButton, BorderLayout.EAST);
 
-        JLabel titleLabel = new JLabel("제목: " + post.get("title"));
+        JLabel titleLabel = new JLabel("제목: " + post.get("title"), SwingConstants.CENTER);
         titleLabel.setFont(FontLoader.loadCustomFont(18f));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        topPanel.add(titleLabel, BorderLayout.CENTER);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
 
-        JPanel infoPanel = new JPanel(new GridLayout(1, 2));
-        infoPanel.add(new JLabel("작성자: " + post.get("writer")));
-        infoPanel.add(new JLabel("작성일: " + post.get("created_at")));
-
-        headerPanel.add(topPanel);
-        headerPanel.add(infoPanel);
+        JTextArea infoArea = new JTextArea(
+                "작성자: " + post.get("writer") + "\n작성일: " + post.get("created_at")
+        );
+        infoArea.setEditable(false);
+        infoArea.setFont(FontLoader.loadCustomFont(14f));
+        infoArea.setOpaque(false);
+        infoArea.setFocusable(false);
+        infoArea.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        headerPanel.add(infoArea, BorderLayout.SOUTH);
 
         add(headerPanel, BorderLayout.NORTH);
 
