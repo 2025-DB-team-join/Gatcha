@@ -7,12 +7,12 @@ import gotcha.dto.PublicGroup;
 import gotcha.service.JoinService;
 import gotcha.service.ScrapService;
 import gotcha.ui.review.HostReviewScreen;
-import gotcha.ui.review.UserReviewScreen;
+import gotcha.ui.review.ParticipantReviewWriteScreen;
+import gotcha.ui.review.ViewParticipantReviewScreen;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.security.Provider.Service;
 
 public class OtherGroupDetailScreen extends JPanel {
     private PublicGroup group;
@@ -21,12 +21,10 @@ public class OtherGroupDetailScreen extends JPanel {
     private boolean isScrapped = false;
     private JButton scrapBtn;
 
-    // 기존 생성자: classId만 받음 → 내부에서 group 조회
     public OtherGroupDetailScreen(int classId, int userId) {
         this(new PublicGroupDAO().getPublicGroupById(classId), userId);
     }
 
-    // 새로운 생성자: 이미 PublicGroup 객체를 받은 경우
     public OtherGroupDetailScreen(PublicGroup group, int userId) {
         this.group = group;
         this.userId = userId;
@@ -120,9 +118,16 @@ public class OtherGroupDetailScreen extends JPanel {
         JoinService joinService = new JoinService();
         boolean alreadyJoined = joinService.isAlreadyJoined(userId, group.getClassId());
 
+        // 조건: 참여자일 경우 "참여자 리뷰 쓰기" 버튼 보여줌
         if (alreadyJoined) {
             joinBtn.setText("이미 가입됨");
             joinBtn.setEnabled(false);
+
+            JButton reviewBtn = new JButton("참여자 리뷰 쓰기");
+            reviewBtn.addActionListener(e -> {
+                Main.setScreen(new ViewParticipantReviewScreen(group.getClassId(), userId));
+            });
+            panel.add(reviewBtn);
         } else {
             joinBtn.addActionListener(e -> {
                 int result = joinService.joinClass(userId, group.getClassId());
@@ -145,4 +150,5 @@ public class OtherGroupDetailScreen extends JPanel {
         return panel;
     }
 }
+
 
