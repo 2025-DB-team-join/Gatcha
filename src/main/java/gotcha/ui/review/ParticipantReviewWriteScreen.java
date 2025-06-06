@@ -89,6 +89,11 @@ public class ParticipantReviewWriteScreen extends JPanel {
                     JOptionPane.showMessageDialog(this, "평점은 0.0 ~ 5.0 사이여야 합니다.");
                     return;
                 }
+                
+                if (((int)(rating * 10)) % 5 != 0) {
+                    JOptionPane.showMessageDialog(this, "평점은 0.5 단위로 입력해주세요.");
+                    return;
+                }
 
                 if (review == null) {
                     dao.writeReview(classId, writerId, targetId, rating, content);
