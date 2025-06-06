@@ -53,4 +53,37 @@ public class ScrapDAO {
 	    }
 	    return false;
 	}
+
+	public boolean addScrap(int userId, int classId) {
+		String checkSql = "SELECT * FROM scrap WHERE user_id = ? AND class_id = ?";
+		String insertSql = "INSERT INTO scrap (user_id, class_id, created_at) VALUES (?, ?, NOW())";
+		String restoreSql = "UPDATE scrap SET deleted_at = NULL WHERE user_id = ? AND class_id = ?";
+
+		try (Connection conn = DBConnector.getConnection();
+			 PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+
+			checkStmt.setInt(1, userId);
+			checkStmt.setInt(2, classId);
+			ResultSet rs = checkStmt.executeQuery();
+
+			if (rs.next()) {
+				try (PreparedStatement restoreStmt = conn.prepareStatement(restoreSql)) {
+					restoreStmt.setInt(1, userId);
+					restoreStmt.setInt(2, classId);
+					return restoreStmt.executeUpdate() > 0;
+				}
+			} else {
+				try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+					insertStmt.setInt(1, userId);
+					insertStmt.setInt(2, classId);
+					return insertStmt.executeUpdate() > 0;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+
 }
