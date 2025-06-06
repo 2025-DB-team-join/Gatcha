@@ -2,6 +2,7 @@ package gotcha.dao;
 
 import gotcha.common.DBConnector;
 
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -325,18 +326,24 @@ public class GroupDAO {
         return false;
     }
 
-    public int insertParticipation(int userId, int classId, Timestamp joinedAt) {
-        String sql = "INSERT INTO participation(user_id, class_id, joined_at) VALUES (?, ?, ?)";
+    public int insertParticipation(int userId, int classId) {
+        String sql = "CALL join_class_with_limit(?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, classId);
-            pstmt.setTimestamp(3, joinedAt);
-            return pstmt.executeUpdate();
+            pstmt.execute();
+            return 1;
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e.getMessage().contains("정원이 초과")) {
+                JOptionPane.showMessageDialog(null, "정원이 초과되어 가입할 수 없습니다.");
+            } else {
+                e.printStackTrace();
+            }
+            return 0;
         }
-        return 0;
     }
+
+
 }
 

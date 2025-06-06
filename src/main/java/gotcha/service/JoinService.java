@@ -14,6 +14,6 @@ public class JoinService {
 
     public int joinClass(int userId, int classId) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        return dao.insertParticipation(userId, classId, now);
+        return dao.insertParticipation(userId, classId);
     }
 }
