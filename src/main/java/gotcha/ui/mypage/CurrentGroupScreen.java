@@ -23,7 +23,12 @@ public class CurrentGroupScreen extends JPanel {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         resultTable = new JTable(tableModel);
-        add(new JScrollPane(resultTable), BorderLayout.CENTER);
+        resultTable.setRowHeight(32);
+		JScrollPane tableScroll = new JScrollPane(resultTable);
+		tableScroll.setPreferredSize(new Dimension(800, 150));
+		add(tableScroll, BorderLayout.CENTER);
+
+		setMaximumSize(new Dimension(800, 200));
         
         resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
         	@Override

@@ -22,18 +22,20 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             // 인트로 화면 구성
             JFrame introFrame = new JFrame("Gatcha!");
-            introFrame.setSize(800, 600);
             introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             introFrame.setLayout(new BorderLayout());
 
+            // 이미지 로딩 및 크기 자동 조정
             ImageIcon icon = new ImageIcon(Main.class.getResource("/images/onboarding.png"));
-            Image scaledImage = icon.getImage().getScaledInstance(800, 600, Image.SCALE_SMOOTH); // 프레임 크기에 맞게 조절
-            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+            JLabel imageLabel = new JLabel(icon);
             imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
             imageLabel.setVerticalAlignment(SwingConstants.CENTER);
 
+            // preferredSize로 인트로 이미지 크기 보장 (필요시)
+            imageLabel.setPreferredSize(new Dimension(800, 600));
             introFrame.add(imageLabel, BorderLayout.CENTER);
 
+            introFrame.pack(); // 내용에 맞게 자동 크기 조정
             introFrame.setLocationRelativeTo(null);
             introFrame.setVisible(true);
 
@@ -43,13 +45,18 @@ public class Main {
 
                 frame = new JFrame("Gatcha!");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(800, 600);
-                frame.setLocationRelativeTo(null);
 
                 ImageIcon mainIcon = new ImageIcon(Main.class.getResource("/images/icon.png"));
                 frame.setIconImage(mainIcon.getImage());
 
-                frame.setContentPane(new AuthScreen()); // 로그인 화면 표시
+                // 로그인 화면 패널 생성
+                AuthScreen authScreen = new AuthScreen();
+
+                frame.setContentPane(authScreen);
+
+                // pack()으로 내용에 맞는 크기 자동 조정
+                frame.pack();
+                frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             });
             timer.setRepeats(false);
@@ -60,6 +67,8 @@ public class Main {
     // 화면 전환 메서드
     public static void setScreen(JPanel panel) {
         frame.setContentPane(panel);
+        frame.pack(); // 새 패널 내용에 맞게 크기 자동 조정
+        frame.setLocationRelativeTo(null); // 항상 중앙에 위치
         frame.revalidate();
         frame.repaint();
     }
