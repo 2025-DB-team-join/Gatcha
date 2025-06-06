@@ -7,16 +7,24 @@ import gotcha.common.Session;
 import gotcha.dao.GroupDAO;
 import gotcha.dao.HostedClassDAO;
 import gotcha.dao.HostedClassDAO.HostedClass;
+import gotcha.dao.ScheduleDAO;
 import gotcha.ui.home.HomeScreen;
 import gotcha.ui.manage.ManageGroupScreen;
 import org.jdatepicker.impl.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
+
 import java.awt.*;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+
 
 public class GroupFormScreen extends JPanel {
     private JTextField titleField;
@@ -27,6 +35,9 @@ public class GroupFormScreen extends JPanel {
     private JComboBox<String> statusBox;
     private UtilDateModel dateModel;
     private JSpinner timeSpinner;
+    private Map<String, JCheckBox> dayCheckBoxes;
+    private JSpinner startTimeSpinner;
+    private JTextField durationField;
 
     private boolean isEditMode;
     private int classId;
@@ -87,17 +98,21 @@ public class GroupFormScreen extends JPanel {
         dateModel.setDate(tomorrow.get(Calendar.YEAR), tomorrow.get(Calendar.MONTH), tomorrow.get(Calendar.DAY_OF_MONTH));
         dateModel.setSelected(true);
 
-        Properties dateProps = new Properties();
-        dateProps.put("text.today", "오늘");
-        dateProps.put("text.month", "월");
-        dateProps.put("text.year", "년");
-
-        JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, dateProps);
-        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-
         SpinnerDateModel timeModel = new SpinnerDateModel();
         timeSpinner = new JSpinner(timeModel);
         timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm:ss"));
+
+        dayCheckBoxes = new LinkedHashMap<>();
+        String[] days = {"Mon", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"};
+        for (String day : days) {
+            JCheckBox checkBox = new JCheckBox(day);
+            dayCheckBoxes.put(day, checkBox);
+        }
+
+        startTimeSpinner = new JSpinner(new SpinnerDateModel());
+        startTimeSpinner.setEditor(new JSpinner.DateEditor(startTimeSpinner, "HH:mm"));
+
+        durationField = new JTextField(5);
     }
 
     private JPanel createFormPanel(JLabel titleLabel) {
@@ -122,6 +137,15 @@ public class GroupFormScreen extends JPanel {
         panel.add(labeledField("모집 마감일 (날짜):", new JDatePickerImpl(new JDatePanelImpl(dateModel, new Properties()), new DateLabelFormatter())));
         panel.add(Box.createVerticalStrut(10));
         panel.add(labeledField("모집 마감일 (시간):", timeSpinner));
+        panel.add(Box.createVerticalStrut(10));
+        JPanel dayPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        dayCheckBoxes.values().forEach(dayPanel::add);
+        panel.add(labeledField("요일 선택:", dayPanel));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(labeledField("시작 시간:", startTimeSpinner));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(labeledField("진행 시간 (분):", durationField));
+        panel.add(Box.createVerticalStrut(10));
 
         return panel;
     }
@@ -162,17 +186,73 @@ public class GroupFormScreen extends JPanel {
 
         Date selectedDate = (Date) dateModel.getValue();
         Date selectedTime = (Date) timeSpinner.getValue();
-
         if (!isValidDeadline(selectedDate)) return;
+
         Timestamp deadline = combineDateTime(selectedDate, selectedTime);
 
-        boolean success = isEditMode
-                ? new GroupDAO().updateGroup(classId, title, context, max, region, category, deadline, status)
-                : new GroupDAO().insertGroup(userId, title, context, max, region, category, deadline, status);
+        GroupDAO groupDAO = new GroupDAO();
+        ScheduleDAO scheduleDAO = new ScheduleDAO();
+        boolean success = false;
+        int newClassId = -1;
 
-        JOptionPane.showMessageDialog(this, success ? (isEditMode ? "소모임 수정 성공!" : "소모임 생성 성공!") : (isEditMode ? "소모임 수정 실패!" : "소모임 생성 실패!"));
+        // 시간 및 duration 처리
+        Date startTimeDate = (Date) startTimeSpinner.getValue();
+        Time startTime = new Time(startTimeDate.getTime());
+
+        int duration;
+        try {
+            duration = Integer.parseInt(durationField.getText().trim());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "진행 시간은 숫자여야 합니다.");
+            return;
+        }
+
+        if (isEditMode) {
+            // 1. 소모임 정보 수정
+            success = groupDAO.updateGroup(classId, title, context, max, region, category, deadline, status);
+
+            if (success) {
+                // 2. 기존 스케줄 삭제
+                scheduleDAO.deleteSchedulesByClassId(classId);
+
+                // 3. 새 스케줄 삽입
+                for (Map.Entry<String, JCheckBox> entry : dayCheckBoxes.entrySet()) {
+                    if (entry.getValue().isSelected()) {
+                        boolean inserted = scheduleDAO.insertSchedule(classId, entry.getKey(), startTime, duration);
+                        if (!inserted) {
+                            JOptionPane.showMessageDialog(this, "일정 저장 실패: " + entry.getKey());
+                            return;
+                        }
+                    }
+                }
+            }
+
+        } else {
+            // 1. 소모임 새로 생성 → class_id 반환
+            newClassId = groupDAO.insertGroup(userId, title, context, max, region, category, deadline, status);
+            success = newClassId != -1;
+
+            if (success) {
+                // 2. 스케줄 삽입
+                for (Map.Entry<String, JCheckBox> entry : dayCheckBoxes.entrySet()) {
+                    if (entry.getValue().isSelected()) {
+                        boolean inserted = scheduleDAO.insertSchedule(newClassId, entry.getKey(), startTime, duration);
+                        if (!inserted) {
+                            JOptionPane.showMessageDialog(this, "일정 저장 실패: " + entry.getKey());
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(this, success
+                ? (isEditMode ? "소모임 수정 성공!" : "소모임 생성 성공!")
+                : (isEditMode ? "소모임 수정 실패!" : "소모임 생성 실패!"));
+
         Main.setScreen(isEditMode ? new ManageGroupScreen(userId) : new HomeScreen());
     }
+
 
     private boolean isValidDeadline(Date selectedDate) {
         Calendar selectedCal = Calendar.getInstance();
@@ -249,17 +329,13 @@ public class GroupFormScreen extends JPanel {
             return;
         }
 
-        // 텍스트 필드
         titleField.setText(existing.getTitle());
         contextArea.setText(existing.getContext());
         maxField.setText(String.valueOf(existing.getMax()));
-
-        // 콤보박스
         regionBox.setSelectedItem(existing.getRegion());
         categoryBox.setSelectedItem(existing.getCategory());
         statusBox.setSelectedItem(existing.getStatus());
 
-        // 모집 마감일 설정
         Timestamp deadline = existing.getDeadline();
         if (deadline != null) {
             Calendar cal = Calendar.getInstance();
@@ -267,9 +343,24 @@ public class GroupFormScreen extends JPanel {
 
             dateModel.setDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
             dateModel.setSelected(true);
-
-            timeSpinner.setValue(deadline); // time 부분만 세팅하면 됨
+            timeSpinner.setValue(deadline);
         }
-    }
 
+        ScheduleDAO scheduleDAO = new ScheduleDAO();
+        List<ScheduleDAO.ScheduleInfo> schedules = scheduleDAO.getSchedulesByClassId(classId);
+
+        if (!schedules.isEmpty()) {
+            // 요일 체크
+            for (ScheduleDAO.ScheduleInfo s : schedules) {
+                JCheckBox cb = dayCheckBoxes.get(s.dayOfWeek);
+                if (cb != null) cb.setSelected(true);
+            }
+
+            // 대표 일정 정보 세팅 (첫 항목 기준)
+            ScheduleDAO.ScheduleInfo first = schedules.get(0);
+            startTimeSpinner.setValue(new java.util.Date(first.startTime.getTime()));
+            durationField.setText(String.valueOf(first.duration));
+        }
+
+    }
 }
