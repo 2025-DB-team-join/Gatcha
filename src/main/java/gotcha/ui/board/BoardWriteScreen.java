@@ -12,56 +12,59 @@ public class BoardWriteScreen extends JPanel {
 
 	public BoardWriteScreen(int userId, int classId) {
 		setLayout(new BorderLayout(20, 20));
-		setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40)); // 더 넉넉한 여백
+		setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-		// 제목 라벨
 		JLabel titleLabel = new JLabel("게시글 작성");
-		titleLabel.setFont(FontLoader.loadCustomFont(26f));
+		titleLabel.setFont(FontLoader.loadCustomFont(24f));
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		add(titleLabel, BorderLayout.NORTH);
 
-		// form 패널: 제목 + 내용
-		JPanel formPanel = new JPanel();
-		formPanel.setLayout(new GridBagLayout());
+		// 폼 구성 (제목 + 내용)
+		JPanel formPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 10, 10);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+
+		// 제목 라벨
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		formPanel.add(new JLabel("제목:"), gbc);
 
-		JLabel titleTextLabel = new JLabel("제목:");
-		titleTextLabel.setFont(FontLoader.loadCustomFont(16f));
-		formPanel.add(titleTextLabel, gbc);
-
-		gbc.gridy++;
+		// 제목 입력칸
 		JTextField titleField = new JTextField(30);
-		titleField.setFont(FontLoader.loadCustomFont(15f));
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 1.0;
 		formPanel.add(titleField, gbc);
 
-		gbc.gridy++;
-		JLabel contextTextLabel = new JLabel("내용:");
-		contextTextLabel.setFont(FontLoader.loadCustomFont(16f));
-		formPanel.add(contextTextLabel, gbc);
+		// 내용 라벨
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		formPanel.add(new JLabel("내용:"), gbc);
 
-		gbc.gridy++;
+		// 내용 입력칸
 		JTextArea contextArea = new JTextArea(10, 30);
-		contextArea.setFont(FontLoader.loadCustomFont(14f));
 		contextArea.setLineWrap(true);
 		contextArea.setWrapStyleWord(true);
 		JScrollPane contextScrollPane = new JScrollPane(contextArea);
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.fill = GridBagConstraints.BOTH;
 		formPanel.add(contextScrollPane, gbc);
 
 		add(formPanel, BorderLayout.CENTER);
 
-		// 버튼 패널
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+		// 등록 버튼
 		JButton submitButton = new JButton("등록");
-		submitButton.setFont(FontLoader.loadCustomFont(16f));
-		submitButton.setPreferredSize(new Dimension(100, 40));
+		submitButton.setFont(FontLoader.loadCustomFont(18f));
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		buttonPanel.add(submitButton);
 		add(buttonPanel, BorderLayout.SOUTH);
 
-		// 버튼 동작
 		submitButton.addActionListener(e -> {
 			String title = titleField.getText().trim();
 			String context = contextArea.getText().trim();
@@ -86,7 +89,9 @@ public class BoardWriteScreen extends JPanel {
 			if (success) {
 				JOptionPane.showMessageDialog(this, "게시글을 등록하였습니다.");
 				Window window = SwingUtilities.getWindowAncestor(this);
-				if (window != null) window.dispose();
+				if (window != null) {
+					window.dispose(); // 현재 팝업 창 닫기
+				}
 			} else {
 				JOptionPane.showMessageDialog(this, "게시글 등록에 실패하였습니다.");
 			}
