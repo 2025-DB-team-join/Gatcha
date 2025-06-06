@@ -1,19 +1,20 @@
-// ✅ OtherGroupDetailScreen.java (로컬 기준 충돌 해결 버전)
 package gotcha.ui.home;
 
 import gotcha.Main;
 import gotcha.common.FontLoader;
 import gotcha.dao.PublicGroupDAO;
+import gotcha.dao.ParticipationStatsDAO;
 import gotcha.dto.PublicGroup;
+import gotcha.dto.RegionGenderCount;
 import gotcha.service.JoinService;
 import gotcha.service.ScrapService;
 import gotcha.ui.review.HostReviewScreen;
-import gotcha.ui.review.ParticipantReviewWriteScreen;
 import gotcha.ui.review.ViewParticipantReviewScreen;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.util.List;
 
 public class OtherGroupDetailScreen extends JPanel {
     private PublicGroup group;
@@ -63,6 +64,13 @@ public class OtherGroupDetailScreen extends JPanel {
         cardPanel.add(createInfoCard("주최자", group.getHostNickname()));
 
         add(cardPanel, BorderLayout.CENTER);
+
+        // 피벗 테이블 패널 추가
+        JPanel pivotPanel = new JPanel(new BorderLayout());
+        pivotPanel.setBorder(BorderFactory.createTitledBorder("참여자 지역/성별 통계"));
+        pivotPanel.add(new JScrollPane(createPivotTable(group.getClassId())), BorderLayout.CENTER);
+        add(pivotPanel, BorderLayout.EAST);
+
         add(createButtonPanel(), BorderLayout.SOUTH);
     }
 
@@ -150,5 +158,23 @@ public class OtherGroupDetailScreen extends JPanel {
         panel.add(backBtn);
         return panel;
     }
-}
 
+    private JTable createPivotTable(int classId) {
+        ParticipationStatsDAO dao = new ParticipationStatsDAO();
+        List<RegionGenderCount> stats = dao.getRegionGenderStats(classId);
+
+        String[] columnNames = {"지역", "남", "여", "기타"};
+        Object[][] data = new Object[stats.size()][4];
+        for (int i = 0; i < stats.size(); i++) {
+            RegionGenderCount row = stats.get(i);
+            data[i][0] = row.getRegion();
+            data[i][1] = row.getMaleCount();
+            data[i][2] = row.getFemaleCount();
+            data[i][3] = row.getOtherCount();
+        }
+        JTable table = new JTable(data, columnNames);
+        table.setEnabled(false);
+        table.setRowHeight(32);
+        return table;
+    }
+}

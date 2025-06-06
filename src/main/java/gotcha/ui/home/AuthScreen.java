@@ -65,15 +65,16 @@ public class AuthScreen extends JPanel {
             JButton loginBtn = new JButton("로그인");
             JButton goRegisterBtn = new JButton("회원가입");
 
-            loginBtn.setPreferredSize(new Dimension(120, 35));
-            goRegisterBtn.setPreferredSize(new Dimension(120, 35));
             loginBtn.setFont(FontLoader.loadCustomFont(14f));
             goRegisterBtn.setFont(FontLoader.loadCustomFont(14f));
+
+            // setPreferredSize는 빼세요!
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
             buttonPanel.add(loginBtn);
             buttonPanel.add(goRegisterBtn);
             buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 
             // 로그인 버튼 기능
             loginBtn.addActionListener(e -> {

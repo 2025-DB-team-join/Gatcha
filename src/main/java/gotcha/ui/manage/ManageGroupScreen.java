@@ -60,6 +60,8 @@ public class ManageGroupScreen extends JPanel {
                 }
             }
         });
+        hostGroupTable.setRowHeight(32);
+
         JScrollPane hostScroll = new JScrollPane(hostGroupTable);
         hostPanel.add(hostScroll, BorderLayout.CENTER);
 
@@ -71,6 +73,7 @@ public class ManageGroupScreen extends JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         participantGroupTable = new JTable(participantModel);
+        participantGroupTable.setRowHeight(32);
         participantGroupTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -83,9 +86,16 @@ public class ManageGroupScreen extends JPanel {
         JScrollPane participantScroll = new JScrollPane(participantGroupTable);
         participantPanel.add(participantScroll, BorderLayout.CENTER);
 
-        JPanel centerPanel = new JPanel(new GridLayout(2, 1));
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        hostScroll.setPreferredSize(new Dimension(800, 200));
+        participantScroll.setPreferredSize(new Dimension(800, 200));
+
         centerPanel.add(hostPanel);
+        centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(participantPanel);
+
         add(centerPanel, BorderLayout.CENTER);
 
         JButton backBtn = new JButton("뒤로가기");
@@ -119,6 +129,7 @@ public class ManageGroupScreen extends JPanel {
             model.addRow(displayRow);
         }
         hostGroupTable.setModel(model);
+        hostGroupTable.setRowHeight(32);
     }
 
     private void loadParticipantGroups() {
