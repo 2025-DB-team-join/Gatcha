@@ -86,7 +86,7 @@ public class MyPageScreen extends JPanel {
         title2.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(title2);
 
-        JLabel hintLabel2 = new JLabel("※ 더블클릭 시 스크랩을 취소할 수 있습니다.");
+        JLabel hintLabel2 = new JLabel("※ 더블클릭 시 스크랩을 취소하거나 가입할 수 있습니다.");
         hintLabel2.setForeground(Color.GRAY);
         hintLabel2.setFont(hintLabel2.getFont().deriveFont(Font.ITALIC, 12f));
         centerPanel.add(hintLabel2);
