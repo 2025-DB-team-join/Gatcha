@@ -24,7 +24,11 @@ public class CurrentGroupScreen extends JPanel {
         };
         resultTable = new JTable(tableModel);
         resultTable.setRowHeight(32);
-        add(new JScrollPane(resultTable), BorderLayout.CENTER);
+		JScrollPane tableScroll = new JScrollPane(resultTable);
+		tableScroll.setPreferredSize(new Dimension(800, 150));
+		add(tableScroll, BorderLayout.CENTER);
+
+		setMaximumSize(new Dimension(800, 200));
         
         resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
         	@Override

@@ -20,8 +20,11 @@ public class PreviousClassesPanel extends JPanel {
 		
 		previousClassesTable = new JTable();
 		previousClassesTable.setRowHeight(32);
-		JScrollPane scrollPane = new JScrollPane(previousClassesTable);
-		add(scrollPane, BorderLayout.CENTER);
+
+		JScrollPane tableScroll = new JScrollPane(previousClassesTable);
+		tableScroll.setPreferredSize(new Dimension(800, 150));
+		add(tableScroll, BorderLayout.CENTER);
+
 		refreshTable();
 	}
 	

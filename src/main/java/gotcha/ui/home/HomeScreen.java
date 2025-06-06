@@ -189,7 +189,6 @@ public class HomeScreen extends JPanel {
             }
         };
         mainModel.setColumnIdentifiers(new String[]{"class_id", "소모임 이름", "소개", "상태", "지역"});
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
         currentGroupData = service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         groupTable.setModel(mainModel);

@@ -95,6 +95,7 @@ public class OtherGroupDetailScreen extends JPanel {
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         JButton hostReviewBtn = new JButton("주최자 리뷰 조회");
         scrapBtn = new JButton(isScrapped ? "스크랩 취소" : "스크랩하기");
         JButton joinBtn = new JButton("가입하기");

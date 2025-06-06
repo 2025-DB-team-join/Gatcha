@@ -167,32 +167,84 @@ public class UserDAO {
 
     // 참여 중인 소모임 목록 조회
     public List<Map<String, Object>> getParticipatedClasses(int userId) {
-        List<Map<String, Object>> classList = new ArrayList<>();
-        String sql = "SELECT c.class_id, c.title, s.day_of_week, s.start_time, s.duration " +
-                "FROM participation p " +
-                "JOIN class c ON p.class_id = c.class_id " +
-                "LEFT JOIN schedule s ON c.class_id = s.class_id " +
-                "WHERE p.user_id = ? " +
-                "ORDER BY c.class_id";
+        List<Map<String, Object>> result = new ArrayList<>();
+        String sql =
+                "SELECT c.class_id, c.title, " +
+                        "  GROUP_CONCAT(DISTINCT " +
+                        "    CASE s.day_of_week " +
+                        "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
+                        "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
+                        "    END ORDER BY FIELD(s.day_of_week, 'Mon','Tues','Wed','Thur','Fri','Sat','Sun') SEPARATOR ', ') AS day_of_week, " +
+                        "  MIN(s.start_time) AS start_time, " +
+                        "  MIN(s.duration) AS duration " +
+                        "FROM participation p " +
+                        "JOIN class c ON p.class_id = c.class_id " +
+                        "LEFT JOIN schedule s ON c.class_id = s.class_id " +
+                        "WHERE p.user_id = ? AND p.deleted_at IS NULL AND c.deleted_at IS NULL " +
+                        "GROUP BY c.class_id, c.title";
 
         try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+            int colCount = meta.getColumnCount();
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                row.put("class_id", rs.getInt("class_id"));
-                row.put("title", rs.getString("title"));
-                row.put("day_of_week", rs.getString("day_of_week"));
-                row.put("start_time", rs.getTime("start_time"));
-                row.put("duration", rs.getInt("duration"));
-                classList.add(row);
+                for (int i = 1; i <= colCount; i++) {
+                    row.put(meta.getColumnLabel(i), rs.getObject(i));
+                }
+                result.add(row);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return classList;
+        return result;
     }
+
+    public List<Map<String, Object>> getParticipantsByClassId(int classId) {
+        List<Map<String, Object>> participants = new ArrayList<>();
+        String sql = "SELECT u.nickname, u.email, p.joined_at, p.absent " +
+                "FROM participation p " +
+                "JOIN user u ON p.user_id = u.user_id " +
+                "WHERE p.class_id = ? AND p.deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, classId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("nickname", rs.getString("nickname"));
+                row.put("email", rs.getString("email"));
+                row.put("joined_at", rs.getDate("joined_at"));
+                row.put("absent", rs.getInt("absent"));
+                participants.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return participants;
+    }
+
+    public boolean increaseAbsentByEmail(int classId, String email) {
+        String sql = "UPDATE participation p " +
+                "JOIN user u ON p.user_id = u.user_id " +
+                "SET p.absent = p.absent + 1 " +
+                "WHERE p.class_id = ? AND u.email = ? AND p.deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, classId);
+            pstmt.setString(2, email);
+            int updated = pstmt.executeUpdate();
+            return updated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

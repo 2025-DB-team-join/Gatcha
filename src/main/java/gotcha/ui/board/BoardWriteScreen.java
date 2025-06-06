@@ -19,23 +19,51 @@ public class BoardWriteScreen extends JPanel {
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		add(titleLabel, BorderLayout.NORTH);
 
-		JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+		// 폼 구성 (제목 + 내용)
+		JPanel formPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(10, 10, 10, 10);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
 
-		JTextField titleField = new JTextField();
-		JTextArea contextArea = new JTextArea(10, 20);
+		// 제목 라벨
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		formPanel.add(new JLabel("제목:"), gbc);
+
+		// 제목 입력칸
+		JTextField titleField = new JTextField(30);
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 1.0;
+		formPanel.add(titleField, gbc);
+
+		// 내용 라벨
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		formPanel.add(new JLabel("내용:"), gbc);
+
+		// 내용 입력칸
+		JTextArea contextArea = new JTextArea(10, 30);
 		contextArea.setLineWrap(true);
 		contextArea.setWrapStyleWord(true);
 		JScrollPane contextScrollPane = new JScrollPane(contextArea);
-
-		formPanel.add(new JLabel("제목:"));
-		formPanel.add(titleField);
-		formPanel.add(new JLabel("내용:"));
-		formPanel.add(contextScrollPane);
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.fill = GridBagConstraints.BOTH;
+		formPanel.add(contextScrollPane, gbc);
 
 		add(formPanel, BorderLayout.CENTER);
 
-		JButton submitButton = new JButton("확인");
-		submitButton.setFont(FontLoader.loadCustomFont(20f));
+		// 등록 버튼
+		JButton submitButton = new JButton("등록");
+		submitButton.setFont(FontLoader.loadCustomFont(18f));
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(submitButton);
+		add(buttonPanel, BorderLayout.SOUTH);
 
 		submitButton.addActionListener(e -> {
 			String title = titleField.getText().trim();
@@ -68,7 +96,5 @@ public class BoardWriteScreen extends JPanel {
 				JOptionPane.showMessageDialog(this, "게시글 등록에 실패하였습니다.");
 			}
 		});
-
-		add(submitButton, BorderLayout.SOUTH);
 	}
 }

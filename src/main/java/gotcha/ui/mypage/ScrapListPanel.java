@@ -22,8 +22,9 @@ public class ScrapListPanel extends JPanel {
 		scrapTable = new JTable();
 		scrapTable.setRowHeight(32);
 
-		JScrollPane scrollPane = new JScrollPane(scrapTable);
-		add(scrollPane, BorderLayout.CENTER);
+		JScrollPane tableScroll = new JScrollPane(scrapTable);
+		tableScroll.setPreferredSize(new Dimension(800, 150));
+		add(tableScroll, BorderLayout.CENTER);
 
 		scrapTable.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override

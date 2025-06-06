@@ -33,22 +33,40 @@ public class CurrentGroupDAO {
     public List<CurrentGroup> getCurrentGroups(int userId) {
         List<CurrentGroup> result = new ArrayList<>();
         String sql =
-            "SELECT c.class_id, c.title, c.category, c.main_region, u.nickname AS host_nickname, " +
-            "  (SELECT GROUP_CONCAT(DISTINCT CASE s.day_of_week " +
-            "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
-            "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
-            "      ELSE s.day_of_week END " +
-            "      ORDER BY FIELD(s.day_of_week, 'Mon','Tues','Wed','Thur','Fri','Sat','Sun') SEPARATOR ', ' " +
-            "    ) FROM schedule s WHERE s.class_id = c.class_id) AS days " +
-            "FROM participation p " +
-            "JOIN class c ON p.class_id = c.class_id " +
-            "JOIN user u ON c.host_id = u.user_id " +
-            "WHERE p.user_id = ? AND c.status = '진행중'";
+                "SELECT\n" +
+                        "    c.class_id,\n" +
+                        "    c.title,\n" +
+                        "    c.category,\n" +
+                        "    c.main_region,\n" +
+                        "    u.nickname AS host_nickname,\n" +
+                        "    (\n" +
+                        "        SELECT GROUP_CONCAT(DISTINCT\n" +
+                        "            CASE s.day_of_week\n" +
+                        "                WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수'\n" +
+                        "                WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일'\n" +
+                        "                ELSE s.day_of_week\n" +
+                        "            END\n" +
+                        "            ORDER BY FIELD(s.day_of_week, 'Mon','Tues','Wed','Thur','Fri','Sat','Sun')\n" +
+                        "            SEPARATOR ', '\n" +
+                        "        )\n" +
+                        "        FROM schedule s\n" +
+                        "        WHERE s.class_id = c.class_id\n" +
+                        "    ) AS days\n" +
+                        "FROM participation p\n" +
+                        "JOIN class c ON p.class_id = c.class_id\n" +
+                        "JOIN user u ON c.host_id = u.user_id\n" +
+                        "WHERE p.user_id = ?\n" +
+                        "  AND c.host_id != ?\n" +
+                        "  AND p.deleted_at IS NULL\n" +
+                        "  AND c.deleted_at IS NULL\n" +
+                        "  AND (c.status = '진행중' or c.status = '모집중')\n;";
+
         try (
             Connection conn = DBConnector.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
             pstmt.setInt(1, userId);
+            pstmt.setInt(2, userId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(new CurrentGroup(
