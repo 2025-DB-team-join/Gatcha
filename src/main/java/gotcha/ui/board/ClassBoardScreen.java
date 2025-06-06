@@ -45,6 +45,17 @@ public class ClassBoardScreen extends JPanel {
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         topPanel.add(titleLabel, BorderLayout.CENTER);
 
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JButton refreshButton = new JButton("새로고침");
+        refreshButton.setFont(FontLoader.loadCustomFont(14f));
+
+        refreshButton.addActionListener(e -> {
+            loadAllPosts(); // 게시글 다시 불러오기
+        });
+
+        rightButtonPanel.add(refreshButton);
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
+
         JButton writeButton = new JButton("게시글 작성");
         writeButton.setFont(FontLoader.loadCustomFont(14f));
         int hostId = boardService.getHostId(classId);
@@ -60,7 +71,8 @@ public class ClassBoardScreen extends JPanel {
             frame.setContentPane(new BoardWriteScreen(userId, classId));
             frame.setVisible(true);
         });
-        topPanel.add(writeButton, BorderLayout.EAST);
+        rightButtonPanel.add(writeButton);
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
         // 테이블

@@ -195,4 +195,49 @@ public class UserDAO {
 
         return classList;
     }
+
+    public List<Map<String, Object>> getParticipantsByClassId(int classId) {
+        List<Map<String, Object>> participants = new ArrayList<>();
+        String sql = "SELECT u.nickname, u.email, p.joined_at, p.absent " +
+                "FROM participation p " +
+                "JOIN user u ON p.user_id = u.user_id " +
+                "WHERE p.class_id = ? AND p.deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, classId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("nickname", rs.getString("nickname"));
+                row.put("email", rs.getString("email"));
+                row.put("joined_at", rs.getDate("joined_at"));
+                row.put("absent", rs.getInt("absent"));
+                participants.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return participants;
+    }
+
+    public boolean increaseAbsentByEmail(int classId, String email) {
+        String sql = "UPDATE participation p " +
+                "JOIN user u ON p.user_id = u.user_id " +
+                "SET p.absent = p.absent + 1 " +
+                "WHERE p.class_id = ? AND u.email = ? AND p.deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, classId);
+            pstmt.setString(2, email);
+            int updated = pstmt.executeUpdate();
+            return updated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

@@ -5,9 +5,13 @@ import gotcha.common.FontLoader;
 import gotcha.dao.GroupDAO;
 import gotcha.dao.HostedClassDAO;
 import gotcha.dao.HostedClassDAO.HostedClass;
+import gotcha.dao.UserDAO;
 
+import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class MyGroupDetailScreen extends JPanel {
@@ -53,6 +57,7 @@ public class MyGroupDetailScreen extends JPanel {
         cardPanel.add(createInfoCard("상태", hostedClass.getStatus()));
 
         add(cardPanel, BorderLayout.CENTER);
+        add(createMemberAttendancePanel(classId), BorderLayout.EAST);
 
         // 버튼 패널
         add(createButtonPanel(), BorderLayout.SOUTH);
@@ -77,6 +82,7 @@ public class MyGroupDetailScreen extends JPanel {
 
         return panel;
     }
+
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -108,5 +114,97 @@ public class MyGroupDetailScreen extends JPanel {
         panel.add(backBtn);
         return panel;
     }
+
+
+    private JTable memberTable;
+
+    private JPanel createMemberAttendancePanel(int classId) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("참여자 출결 관리"));
+
+        String[] cols = {"이름", "이메일", "가입일", "결석 횟수"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            public boolean isCellEditable(int row, int col) { return false; }
+        };
+        memberTable = new JTable(model);
+
+        // 참여자 데이터 불러오기
+        List<Map<String, Object>> members = new UserDAO().getParticipantsByClassId(classId);
+        for (Map<String, Object> user : members) {
+            model.addRow(new Object[]{
+                    user.get("nickname"),
+                    user.get("email"),
+                    user.get("joined_at"),
+                    user.get("absent")
+            });
+        }
+
+        // 버튼 추가
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton increaseAbsentBtn = new JButton("결석 횟수 +1");
+        JButton kickBtn = new JButton("강퇴");
+
+        increaseAbsentBtn.addActionListener(e -> handleIncreaseAbsent(classId));
+        kickBtn.addActionListener(e -> handleKickMember(classId));
+
+        buttonPanel.add(increaseAbsentBtn);
+        buttonPanel.add(kickBtn);
+
+        panel.add(new JScrollPane(memberTable), BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private void handleIncreaseAbsent(int classId) {
+        int selectedRow = memberTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "결석 처리할 멤버를 선택해주세요.");
+            return;
+        }
+
+        String email = (String) memberTable.getValueAt(selectedRow, 1);
+        boolean success = new UserDAO().increaseAbsentByEmail(classId, email);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "결석 횟수를 1 증가시켰습니다.");
+            ((DefaultTableModel) memberTable.getModel()).setValueAt(
+                    (int) memberTable.getValueAt(selectedRow, 3) + 1,
+                    selectedRow,
+                    3
+            );
+        } else {
+            JOptionPane.showMessageDialog(this, "결석 처리에 실패했습니다.");
+        }
+    }
+
+    private void handleKickMember(int classId) {
+        int selectedRow = memberTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "강퇴할 멤버를 선택해주세요.");
+            return;
+        }
+
+        String email = (String) memberTable.getValueAt(selectedRow, 1);
+
+        // 주최자 이메일과 비교해서 강퇴 차단
+        if (email.equals(hostedClass.getHostEmail())) {
+            JOptionPane.showMessageDialog(this, "주최자는 강퇴할 수 없습니다.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, email + "님을 정말 강퇴하시겠습니까?", "강퇴 확인", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = new HostedClassDAO().removeParticipant(classId, email);
+            if (success) {
+                ((DefaultTableModel) memberTable.getModel()).removeRow(selectedRow);
+                JOptionPane.showMessageDialog(this, "강퇴가 완료되었습니다.");
+            } else {
+                JOptionPane.showMessageDialog(this, "강퇴에 실패했습니다.");
+            }
+        }
+    }
+
 }
+
 
