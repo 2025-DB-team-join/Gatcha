@@ -20,6 +20,7 @@ public class ScrapListPanel extends JPanel {
 		setLayout(new BorderLayout());
 
 		scrapTable = new JTable();
+		scrapTable.setRowHeight(32);
 
 		JScrollPane scrollPane = new JScrollPane(scrapTable);
 		add(scrollPane, BorderLayout.CENTER);

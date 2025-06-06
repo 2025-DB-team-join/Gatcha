@@ -19,6 +19,7 @@ public class PreviousClassesPanel extends JPanel {
 		setLayout(new BorderLayout());
 		
 		previousClassesTable = new JTable();
+		previousClassesTable.setRowHeight(32);
 		JScrollPane scrollPane = new JScrollPane(previousClassesTable);
 		add(scrollPane, BorderLayout.CENTER);
 		refreshTable();

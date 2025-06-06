@@ -31,6 +31,7 @@ public class HomeScreen extends JPanel {
     public HomeScreen() {
         FontLoader.applyGlobalFont(14f);
         top5Table = new JTable();
+        top5Table.setRowHeight(32);
         int userId = Session.loggedInUserId;
 
         JPanel searchCategoryPanel = new JPanel(new BorderLayout());
@@ -88,6 +89,8 @@ public class HomeScreen extends JPanel {
                 return false;
             }
         };
+        groupTable.setRowHeight(32);
+        
         JLabel hintLabel = new JLabel("※ 소모임을 더블클릭하면 상세조회할 수 있습니다.");
         hintLabel.setForeground(Color.GRAY);
         hintLabel.setFont(hintLabel.getFont().deriveFont(Font.ITALIC, 12f));
@@ -190,6 +193,7 @@ public class HomeScreen extends JPanel {
         currentGroupData = service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         groupTable.setModel(mainModel);
+        groupTable.setRowHeight(32);
         groupTable.getColumnModel().getColumn(0).setMinWidth(0);
         groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
         groupTable.getColumnModel().getColumn(0).setWidth(0);
@@ -204,12 +208,14 @@ public class HomeScreen extends JPanel {
         // top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         groupTable.setModel(mainModel);
+        groupTable.setRowHeight(32);
         groupTable.getColumnModel().getColumn(1).setPreferredWidth(150);
         groupTable.getColumnModel().getColumn(2).setPreferredWidth(400);
         groupTable.getColumnModel().getColumn(3).setPreferredWidth(60);
         groupTable.getColumnModel().getColumn(4).setPreferredWidth(60);
 
         top5Table.setModel(top5Model);
+        groupTable.setRowHeight(32);
         top5Table.getColumnModel().getColumn(0).setPreferredWidth(40);
         top5Table.getColumnModel().getColumn(1).setPreferredWidth(150);
         top5Table.getColumnModel().getColumn(2).setPreferredWidth(80);

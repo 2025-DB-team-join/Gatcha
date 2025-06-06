@@ -47,6 +47,7 @@ public class ManageGroupScreen extends JPanel {
         hostPanel.add(filterPanel, BorderLayout.NORTH);
 
         hostGroupTable = new JTable();
+        hostGroupTable.setRowHeight(32);
         JScrollPane hostScroll = new JScrollPane(hostGroupTable);
         hostPanel.add(hostScroll, BorderLayout.CENTER);
 
@@ -62,6 +63,7 @@ public class ManageGroupScreen extends JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         participantGroupTable = new JTable(participantModel);
+        participantGroupTable.setRowHeight(32);
         JScrollPane participantScroll = new JScrollPane(participantGroupTable);
         participantPanel.add(participantScroll, BorderLayout.CENTER);
 
@@ -105,6 +107,7 @@ public class ManageGroupScreen extends JPanel {
             model.addRow(displayRow);
         }
         hostGroupTable.setModel(model);
+        hostGroupTable.setRowHeight(32);
     }
 
     private void loadParticipantGroups() {

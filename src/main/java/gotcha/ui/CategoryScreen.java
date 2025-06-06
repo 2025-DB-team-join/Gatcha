@@ -37,6 +37,7 @@ public class CategoryScreen extends JPanel {
         String[] cols = {"클래스명", "설명", "요일"};
         tableModel = new DefaultTableModel(cols, 0);
         resultTable = new JTable(tableModel);
+        resultTable.setRowHeight(32);
 
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(resultTable), BorderLayout.CENTER);
