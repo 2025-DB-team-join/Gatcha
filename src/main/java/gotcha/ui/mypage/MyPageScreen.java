@@ -1,5 +1,6 @@
 package gotcha.ui.mypage;
 
+import gotcha.common.FontLoader;
 import gotcha.common.Session;
 import gotcha.service.UserService;
 import gotcha.service.UserRatingService;
@@ -7,6 +8,9 @@ import gotcha.ui.home.HomeScreen;
 import gotcha.ui.mypage.PreviousClassesPanel;
 import gotcha.ui.mypage.ScrapListPanel;
 import gotcha.ui.review.UserReviewScreen;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,10 +29,11 @@ private final UserRatingService ratingService = new UserRatingService();
         contentPanel.setBackground(Color.WHITE);
 
         JPanel infoPanel = new JPanel();
+        infoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, infoPanel.getPreferredSize().height));
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         infoPanel.setBackground(Color.WHITE);
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 20));
 
         Map<String, Object> userInfo = userService.getUserInfo(userId);
         if (!userInfo.isEmpty()) {
@@ -134,9 +139,22 @@ private final UserRatingService ratingService = new UserRatingService();
         leftPanel.add(deleteAccountBtn);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+
+        JButton refreshButton = new JButton("새로고침");
+        refreshButton.setFont(FontLoader.loadCustomFont(14f));
+        refreshButton.setMargin(new Insets(8, 18, 8, 18)); // 뒤로가기와 통일
+
+        refreshButton.addActionListener(e -> {
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            gotcha.Main.setScreen(new MyPageScreen(userId));
+        });
+
         JButton backBtn = new JButton("← 뒤로가기");
         backBtn.setMargin(new Insets(8, 18, 8, 18));
-        rightPanel.add(backBtn);
+
+        rightPanel.add(refreshButton); // 먼저 새로고침
+        rightPanel.add(backBtn);       // 그다음 뒤로가기
+
 
         buttonPanel.add(leftPanel, BorderLayout.WEST);
         buttonPanel.add(rightPanel, BorderLayout.EAST);
