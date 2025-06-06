@@ -1,3 +1,4 @@
+// ✅ OtherGroupDetailScreen.java (로컬 기준 충돌 해결 버전)
 package gotcha.ui.home;
 
 import gotcha.Main;
@@ -86,6 +87,7 @@ public class OtherGroupDetailScreen extends JPanel {
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         JButton hostReviewBtn = new JButton("주최자 리뷰 조회");
         scrapBtn = new JButton(isScrapped ? "스크랩 취소" : "스크랩하기");
         JButton joinBtn = new JButton("가입하기");
@@ -118,7 +120,6 @@ public class OtherGroupDetailScreen extends JPanel {
         JoinService joinService = new JoinService();
         boolean alreadyJoined = joinService.isAlreadyJoined(userId, group.getClassId());
 
-        // 조건: 참여자일 경우 "참여자 리뷰 쓰기" 버튼 보여줌
         if (alreadyJoined) {
             joinBtn.setText("이미 가입됨");
             joinBtn.setEnabled(false);
@@ -150,5 +151,4 @@ public class OtherGroupDetailScreen extends JPanel {
         return panel;
     }
 }
-
 

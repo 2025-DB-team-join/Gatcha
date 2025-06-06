@@ -148,6 +148,34 @@ public class HomeScreen extends JPanel {
 
 
         refreshTables();
+        /*
+        groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = groupTable.rowAtPoint(evt.getPoint());
+                if (row >= 0 && evt.getClickCount() == 2) {
+                    String title = (String) groupTable.getValueAt(row, 1);
+                    int confirm = JOptionPane.showConfirmDialog(
+                            HomeScreen.this,
+                            "'" + title + "' 소모임을 스크랩하시겠습니까?",
+                            "스크랩 확인",
+                            JOptionPane.YES_NO_OPTION
+                    );
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        int classId = Integer.parseInt((String) groupTable.getValueAt(row, 0));
+                        boolean success = scrapService.addScrap(Session.loggedInUserId, classId);
+                        if (success) {
+                            JOptionPane.showMessageDialog(HomeScreen.this, "스크랩이 완료되었습니다.");
+                        } else {
+                            JOptionPane.showMessageDialog(HomeScreen.this, "이미 스크랩했거나 실패했습니다.");
+                        }
+                    }
+                }
+            }
+        });
+    */
+
     }
 
     private void refreshTables() {
@@ -158,12 +186,14 @@ public class HomeScreen extends JPanel {
             }
         };
         mainModel.setColumnIdentifiers(new String[]{"class_id", "소모임 이름", "소개", "상태", "지역"});
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
+        currentGroupData = service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         groupTable.setModel(mainModel);
         groupTable.getColumnModel().getColumn(0).setMinWidth(0);
         groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
         groupTable.getColumnModel().getColumn(0).setWidth(0);
+
+        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         DefaultTableModel top5Model = new DefaultTableModel();
         top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
