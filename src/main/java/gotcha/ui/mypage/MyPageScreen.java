@@ -1,5 +1,6 @@
 package gotcha.ui.mypage;
 
+import gotcha.common.Session;
 import gotcha.service.UserService;
 import gotcha.service.UserRatingService;
 import gotcha.ui.home.HomeScreen;
@@ -114,9 +115,11 @@ public class MyPageScreen extends JPanel {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton editInfoBtn = new JButton("개인정보 수정");
         JButton changePwBtn = new JButton("비밀번호 변경");
+        JButton logoutBtn = new JButton("로그아웃");
         JButton deleteAccountBtn = new JButton("회원탈퇴");
         leftPanel.add(editInfoBtn);
         leftPanel.add(changePwBtn);
+        leftPanel.add(logoutBtn);
         leftPanel.add(deleteAccountBtn);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -132,6 +135,12 @@ public class MyPageScreen extends JPanel {
 
         editInfoBtn.addActionListener(e -> new EditUserInfoDialog(userId).setVisible(true));
         changePwBtn.addActionListener(e -> new ChangePasswordDialog(userId).setVisible(true));
+        logoutBtn.addActionListener(e -> {
+            Session.logout();
+            JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
+            gotcha.Main.setScreen(new gotcha.ui.home.AuthScreen());
+        });
+
         deleteAccountBtn.addActionListener(e -> new DeleteAccountDialog(userId).setVisible(true));
         backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
     }

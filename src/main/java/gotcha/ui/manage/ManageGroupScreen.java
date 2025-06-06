@@ -14,6 +14,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Vector;
 
@@ -46,13 +48,20 @@ public class ManageGroupScreen extends JPanel {
         filterPanel.add(statusFilter);
         hostPanel.add(filterPanel, BorderLayout.NORTH);
 
-        hostGroupTable = new JTable();
+        hostGroupTable = new JTable() {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        hostGroupTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+                    int row = hostGroupTable.getSelectedRow();
+                    if (row >= 0) handleHostView();
+                }
+            }
+        });
         JScrollPane hostScroll = new JScrollPane(hostGroupTable);
         hostPanel.add(hostScroll, BorderLayout.CENTER);
-
-        JButton viewHostBtn = new JButton("상세 보기");
-        viewHostBtn.addActionListener(e -> handleHostView());
-        hostPanel.add(viewHostBtn, BorderLayout.SOUTH);
 
         JPanel participantPanel = new JPanel(new BorderLayout());
         participantPanel.setBorder(BorderFactory.createTitledBorder("참여중인 소모임"));
@@ -62,12 +71,17 @@ public class ManageGroupScreen extends JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         participantGroupTable = new JTable(participantModel);
+        participantGroupTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+                    int row = participantGroupTable.getSelectedRow();
+                    if (row >= 0) handleParticipantView();
+                }
+            }
+        });
         JScrollPane participantScroll = new JScrollPane(participantGroupTable);
         participantPanel.add(participantScroll, BorderLayout.CENTER);
-
-        JButton viewParticipantBtn = new JButton("상세 보기");
-        viewParticipantBtn.addActionListener(e -> handleParticipantView());
-        participantPanel.add(viewParticipantBtn, BorderLayout.SOUTH);
 
         JPanel centerPanel = new JPanel(new GridLayout(2, 1));
         centerPanel.add(hostPanel);
