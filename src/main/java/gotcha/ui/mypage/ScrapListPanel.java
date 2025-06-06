@@ -41,11 +41,12 @@ public class ScrapListPanel extends JPanel {
 		            JLabel msgLabel = new JLabel("'" + title + "' 소모임에 대해 다음 작업을 선택하세요:");
 		            msgLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		            dialog.add(msgLabel, BorderLayout.NORTH);
+		            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
 		            JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		            JButton cancelScrapBtn = new JButton("스크랩 취소");
 		            JButton joinBtn = new JButton("가입하기");
-		            JButton closeBtn = new JButton("닫기");
+		            
 
 		            cancelScrapBtn.addActionListener(e -> {
 		                int confirm = JOptionPane.showConfirmDialog(
@@ -84,11 +85,11 @@ public class ScrapListPanel extends JPanel {
 		                	}
 		                }});
 
-		            closeBtn.addActionListener(e -> dialog.dispose());
+		            
 
 		            btnPanel.add(cancelScrapBtn);
 		            btnPanel.add(joinBtn);
-		            btnPanel.add(closeBtn);
+		            
 		            dialog.add(btnPanel, BorderLayout.CENTER);
 
 		            dialog.pack();
