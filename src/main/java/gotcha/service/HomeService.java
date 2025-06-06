@@ -20,8 +20,9 @@ public class HomeService {
             if (rank <= 5) {
                 Vector<String> topRow = new Vector<>();
                 topRow.add(rank + "위");
-                topRow.add(row.get(0)); // 소모임 이름
+                topRow.add(row.get(0));
                 topRow.add(row.get(2)); // 출석률
+                topRow.add(row.get(3)); // 모임 설명
                 top5Model.addRow(topRow);
                 rank++;
             }

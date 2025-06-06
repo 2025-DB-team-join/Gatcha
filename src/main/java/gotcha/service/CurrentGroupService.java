@@ -9,4 +9,8 @@ public class CurrentGroupService {
     public List<CurrentGroupDAO.CurrentGroup> getCurrentGroups(int userId) {
         return dao.getCurrentGroups(userId);
     }
+    
+    public boolean cancelParticipation(int userId, int classId) {
+    	return dao.removeParticipation(userId, classId);
+    }
 }
