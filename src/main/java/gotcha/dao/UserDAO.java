@@ -181,11 +181,27 @@ public class UserDAO {
                         "JOIN class c ON p.class_id = c.class_id " +
                         "LEFT JOIN schedule s ON c.class_id = s.class_id " +
                         "WHERE p.user_id = ? AND p.deleted_at IS NULL AND c.deleted_at IS NULL " +
+                        "GROUP BY c.class_id, c.title " +
+
+                        "UNION " +
+
+                        "SELECT c.class_id, c.title, " +
+                        "  GROUP_CONCAT(DISTINCT " +
+                        "    CASE s.day_of_week " +
+                        "      WHEN 'Mon' THEN '월' WHEN 'Tues' THEN '화' WHEN 'Wed' THEN '수' " +
+                        "      WHEN 'Thur' THEN '목' WHEN 'Fri' THEN '금' WHEN 'Sat' THEN '토' WHEN 'Sun' THEN '일' " +
+                        "    END ORDER BY FIELD(s.day_of_week, 'Mon','Tues','Wed','Thur','Fri','Sat','Sun') SEPARATOR ', ') AS day_of_week, " +
+                        "  MIN(s.start_time) AS start_time, " +
+                        "  MIN(s.duration) AS duration " +
+                        "FROM class c " +
+                        "LEFT JOIN schedule s ON c.class_id = s.class_id " +
+                        "WHERE c.host_id = ? AND c.deleted_at IS NULL " +
                         "GROUP BY c.class_id, c.title";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
+            pstmt.setInt(1, userId); // participation 쿼리
+            pstmt.setInt(2, userId); // host 쿼리
             ResultSet rs = pstmt.executeQuery();
             ResultSetMetaData meta = rs.getMetaData();
             int colCount = meta.getColumnCount();
@@ -202,6 +218,7 @@ public class UserDAO {
 
         return result;
     }
+
 
     public List<Map<String, Object>> getParticipantsByClassId(int classId) {
         List<Map<String, Object>> participants = new ArrayList<>();
