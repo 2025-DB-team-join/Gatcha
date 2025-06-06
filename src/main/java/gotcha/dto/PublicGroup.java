@@ -2,6 +2,7 @@ package gotcha.dto;
 
 public class PublicGroup {
     private int classId;
+    private int hostId;
     private String title;
     private String category;
     private String context;
@@ -13,10 +14,11 @@ public class PublicGroup {
     private String status;
 
     // 전체 필드를 받는 생성자
-    public PublicGroup(int classId, String title, String category, String context,
+    public PublicGroup(int classId, int hostId, String title, String category, String context,
                        String region, String hostNickname, String days,
                        int userCount, int max, String status) {
         this.classId = classId;
+        this.hostId = hostId;
         this.title = title;
         this.category = category;
         this.context = context;
@@ -29,6 +31,7 @@ public class PublicGroup {
     }
 
     public int getClassId() { return classId; }
+    public int getHostId() {return hostId; }
     public String getTitle() { return title; }
     public String getCategory() { return category; }
     public String getContext() { return context; }

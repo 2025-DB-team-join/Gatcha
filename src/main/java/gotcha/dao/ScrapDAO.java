@@ -53,6 +53,50 @@ public class ScrapDAO {
 	    }
 	    return false;
 	}
+	
+	//상세 조회용 화면 
+	public boolean isScrapped(int userId, int classId) {
+	    String sql = "SELECT COUNT(*) FROM scrap WHERE user_id = ? AND class_id = ? AND deleted_at IS NULL";
+	    try (Connection conn = DBConnector.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        pstmt.setInt(1, userId);
+	        pstmt.setInt(2, classId);
+	        ResultSet rs = pstmt.executeQuery();
+	        return rs.next() && rs.getInt(1) > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+	
+	public boolean scrapClass(int userId, int classId) {
+	    String updateSql = "UPDATE scrap SET deleted_at = NULL WHERE user_id = ? AND class_id = ?";
+	    String insertSql = "INSERT INTO scrap(user_id, class_id) VALUES (?, ?)";
+
+	    try (Connection conn = DBConnector.getConnection()) {
+	        // 먼저 복구 시도 (soft delete 취소)
+	        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+	            updateStmt.setInt(1, userId);
+	            updateStmt.setInt(2, classId);
+	            if (updateStmt.executeUpdate() > 0) {
+	                return true;
+	            }
+	        }
+
+	        // 없으면 새로 insert
+	        try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+	            insertStmt.setInt(1, userId);
+	            insertStmt.setInt(2, classId);
+	            return insertStmt.executeUpdate() > 0;
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return false;
+	}
+
 
 	public boolean addScrap(int userId, int classId) {
 		String checkSql = "SELECT * FROM scrap WHERE user_id = ? AND class_id = ?";

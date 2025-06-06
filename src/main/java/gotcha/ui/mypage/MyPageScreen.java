@@ -3,7 +3,9 @@ package gotcha.ui.mypage;
 import gotcha.service.UserService;
 import gotcha.service.UserRatingService;
 import gotcha.ui.home.HomeScreen;
-import gotcha.ui.UserReviewScreen;
+import gotcha.ui.mypage.PreviousClassesPanel;
+import gotcha.ui.mypage.ScrapListPanel;
+import gotcha.ui.review.UserReviewScreen;
 
 import javax.swing.*;
 import java.awt.*;

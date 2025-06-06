@@ -40,4 +40,9 @@ public class UserService {
         return userDAO.updateUserInfo(userId, newNickname, newEmail, newRegion);
     }
 
+	public String getNicknameById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -219,7 +219,6 @@ public class GroupDAO {
         return result;
     }
 
-
     public List<Vector<String>> selectGroupsByHost(int hostId) {
         List<Vector<String>> result = new ArrayList<>();
         String sql = "SELECT title, category, main_region, occurrences, max_participants " +
@@ -275,6 +274,31 @@ public class GroupDAO {
         return null;
     }
 
+    public Vector<String> getGroupDetailScreen(int classId) {
+        String sql = "SELECT title, category, context, main_region, status " +
+                     "FROM class WHERE class_id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Vector<String> row = new Vector<>();
+                row.add(rs.getString("title"));
+                row.add(rs.getString("category"));
+                row.add(rs.getString("context"));
+                row.add(rs.getString("main_region"));
+                row.add(rs.getString("status"));
+                return row;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 	public boolean markGroupAsDeleted(int classId) {
 		String sql = "UPDATE class SET deleted_at = NOW() WHERE class_id = ?";
 	    try (Connection conn = DBConnector.getConnection();
@@ -286,5 +310,33 @@ public class GroupDAO {
 	        return false;
 	    }
 	}
+
+    public boolean isAlreadyJoined(int userId, int classId) {
+        String sql = "SELECT COUNT(*) FROM participation WHERE user_id = ? AND class_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, classId);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int insertParticipation(int userId, int classId, Timestamp joinedAt) {
+        String sql = "INSERT INTO participation(user_id, class_id, joined_at) VALUES (?, ?, ?)";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, classId);
+            pstmt.setTimestamp(3, joinedAt);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
 

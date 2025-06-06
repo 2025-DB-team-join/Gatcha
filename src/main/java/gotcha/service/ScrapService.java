@@ -18,6 +18,14 @@ public class ScrapService {
 	public boolean cancelScrap(int userId, int classId) {
         return scrapDAO.cancelScrap(userId, classId);
     }
+	
+	public boolean isScrapped(int userId, int classId) {
+	    return scrapDAO.isScrapped(userId, classId);
+	}
+	
+	public boolean scrapClass(int userId, int classId) {
+	    return scrapDAO.scrapClass(userId, classId);
+	}
 
 	public boolean addScrap(int userId, int classId) {
 		return scrapDAO.addScrap(userId, classId);

@@ -1,6 +1,8 @@
 package gotcha.service;
 
 import gotcha.dao.GroupDAO;
+import gotcha.dao.PublicGroupDAO;
+import gotcha.dto.PublicGroup;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
@@ -27,11 +29,17 @@ public class HomeService {
         }
     }
 
+    public PublicGroup getGroupDetailScreen(int classId) {
+        PublicGroupDAO dao = new PublicGroupDAO();
+        return dao.getPublicGroupById(classId);
+    }
 
-    public void loadGroupDetails(DefaultTableModel mainModel, String keyword, String category) {
+    
+    public List<Vector<String>> loadGroupDetails(DefaultTableModel mainModel, String keyword, String category) {
         List<Vector<String>> groups = dao.getGroupDetails(keyword, category);
         for (Vector<String> row : groups) {
             mainModel.addRow(row);
         }
+        return groups;
     }
 }

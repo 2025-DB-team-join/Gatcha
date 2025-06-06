@@ -1,4 +1,4 @@
-package gotcha.ui;
+package gotcha.ui.review;
 
 import gotcha.dao.UserReviewDAO;
 import gotcha.service.UserReviewService;
