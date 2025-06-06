@@ -186,7 +186,8 @@ public class HomeScreen extends JPanel {
             }
         };
         mainModel.setColumnIdentifiers(new String[]{"class_id", "소모임 이름", "소개", "상태", "지역"});
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
+
+        // 여기서 한 번만 호출!
         currentGroupData = service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         groupTable.setModel(mainModel);
@@ -194,20 +195,14 @@ public class HomeScreen extends JPanel {
         groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
         groupTable.getColumnModel().getColumn(0).setWidth(0);
 
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
-
-        DefaultTableModel top5Model = new DefaultTableModel();
-        top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
-        service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
-
-        // groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        // top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-        groupTable.setModel(mainModel);
         groupTable.getColumnModel().getColumn(1).setPreferredWidth(150);
         groupTable.getColumnModel().getColumn(2).setPreferredWidth(400);
         groupTable.getColumnModel().getColumn(3).setPreferredWidth(60);
         groupTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+
+        DefaultTableModel top5Model = new DefaultTableModel();
+        top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
+        service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
         top5Table.setModel(top5Model);
         top5Table.getColumnModel().getColumn(0).setPreferredWidth(40);
@@ -215,4 +210,5 @@ public class HomeScreen extends JPanel {
         top5Table.getColumnModel().getColumn(2).setPreferredWidth(80);
         top5Table.getColumnModel().getColumn(3).setPreferredWidth(400);
     }
+
 }
