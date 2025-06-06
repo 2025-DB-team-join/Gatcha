@@ -21,7 +21,7 @@ public class Main {
 
         SwingUtilities.invokeLater(() -> {
             // 인트로 화면 구성
-            JFrame introFrame = new JFrame("Gatcha!");
+            JFrame introFrame = new JFrame("Gotcha!");
             introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             introFrame.setLayout(new BorderLayout());
 
@@ -43,7 +43,7 @@ public class Main {
             Timer timer = new Timer(3000, e -> {
                 introFrame.dispose(); // 인트로 종료
 
-                frame = new JFrame("Gatcha!");
+                frame = new JFrame("Gotcha!");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
                 ImageIcon mainIcon = new ImageIcon(Main.class.getResource("/images/icon.png"));
