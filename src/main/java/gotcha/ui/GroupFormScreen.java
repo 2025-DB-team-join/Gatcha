@@ -184,8 +184,9 @@ public class GroupFormScreen extends JPanel {
         String category = (String) categoryBox.getSelectedItem();
         String status = (String) statusBox.getSelectedItem();
 
-        Date selectedDate = (Date) dateModel.getValue();
-        Date selectedTime = (Date) timeSpinner.getValue();
+        java.util.Date selectedDate = (java.util.Date) dateModel.getValue();
+        java.util.Date selectedTime = (java.util.Date) timeSpinner.getValue();
+
         if (!isValidDeadline(selectedDate)) return;
 
         Timestamp deadline = combineDateTime(selectedDate, selectedTime);
@@ -196,7 +197,7 @@ public class GroupFormScreen extends JPanel {
         int newClassId = -1;
 
         // 시간 및 duration 처리
-        Date startTimeDate = (Date) startTimeSpinner.getValue();
+        java.util.Date startTimeDate = (java.util.Date) startTimeSpinner.getValue();
         Time startTime = new Time(startTimeDate.getTime());
 
         int duration;
@@ -254,7 +255,7 @@ public class GroupFormScreen extends JPanel {
     }
 
 
-    private boolean isValidDeadline(Date selectedDate) {
+    private boolean isValidDeadline(java.util.Date selectedDate) {
         Calendar selectedCal = Calendar.getInstance();
         selectedCal.setTime(selectedDate);
 
@@ -272,7 +273,7 @@ public class GroupFormScreen extends JPanel {
         return true;
     }
 
-    private Timestamp combineDateTime(Date date, Date time) {
+    private Timestamp combineDateTime(java.util.Date date, java.util.Date time) {
         Calendar finalCal = Calendar.getInstance();
         finalCal.setTime(date);
 
