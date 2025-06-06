@@ -22,24 +22,16 @@ public class BoardScreen extends JPanel {
 
         int userId = Session.loggedInUserId;
 
-        // 상단 패널 구성
-        JPanel topPanel = new JPanel(new BorderLayout());
-
-        JButton backButton = new JButton("← 뒤로가기");
-        backButton.setFont(FontLoader.loadCustomFont(14f));
-        backButton.addActionListener(e -> {
-            // 이전 화면으로 전환 (예: 홈 화면)
-            Main.setScreen(new gotcha.ui.home.HomeScreen());
-        });
-        topPanel.add(backButton, BorderLayout.WEST);
-
+        // 상단 패널 (제목만 중앙)
         JLabel titleLabel = new JLabel("참여 중인 소모임");
         titleLabel.setFont(FontLoader.loadCustomFont(20f));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        topPanel.add(titleLabel, BorderLayout.CENTER);
 
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(titleLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
+        // 표 생성
         tableModel = new DefaultTableModel(new String[]{
                 "소모임 ID", "소모임 이름", "요일", "시작 시간", "진행 시간(분)"
         }, 0) {
@@ -50,6 +42,17 @@ public class BoardScreen extends JPanel {
         };
 
         classTable = new JTable(tableModel);
+        classTable.setRowHeight(32);
+
+        // 컬럼 폭 지정
+        classTable.getColumnModel().getColumn(0).setMinWidth(0);
+        classTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        classTable.getColumnModel().getColumn(0).setWidth(0); // 소모임 ID 숨김
+        classTable.getColumnModel().getColumn(1).setPreferredWidth(300); // 소모임 이름
+        classTable.getColumnModel().getColumn(2).setPreferredWidth(100);  // 요일
+        classTable.getColumnModel().getColumn(3).setPreferredWidth(150); // 시작 시간
+        classTable.getColumnModel().getColumn(4).setPreferredWidth(100); // 진행 시간
+
         JScrollPane scrollPane = new JScrollPane(classTable);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -66,7 +69,18 @@ public class BoardScreen extends JPanel {
             }
         });
 
+        // 우측 하단 버튼 패널
+        JButton backButton = new JButton("← 뒤로가기");
+        backButton.setFont(FontLoader.loadCustomFont(14f));
+        backButton.addActionListener(e -> Main.setScreen(new gotcha.ui.home.HomeScreen()));
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(backButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
         loadParticipatedClasses(userId);
+
+        
     }
 
     private void loadParticipatedClasses(int userId) {
@@ -83,12 +97,9 @@ public class BoardScreen extends JPanel {
                     row.get("duration") != null ? row.get("duration").toString() : "-"
             });
         }
-
     }
 
     private void openClassBoardWindow(int classId) {
         Main.setScreen(new ClassBoardScreen(classId));
     }
-
 }
-

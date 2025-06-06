@@ -60,5 +60,6 @@ public class DeleteAccountDialog extends JDialog {
         cancelBtn.addActionListener(e -> dispose());
 
         setLocationRelativeTo(null); // 화면 중앙
+        pack();
     }
 }

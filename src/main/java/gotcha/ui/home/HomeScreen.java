@@ -52,7 +52,7 @@ public class HomeScreen extends JPanel {
         searchCategoryPanel.add(searchPanel, BorderLayout.WEST);
         searchCategoryPanel.add(categoryPanel, BorderLayout.EAST);
 
-          // 하단 버튼 왼쪽 (create, manage, board, region/gender)
+        // 하단 버튼 왼쪽 (create, manage, board, region/gender)
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton createBtn = new JButton("소모임 생성");
         JButton manageBtn = new JButton("소모임 관리");
@@ -90,25 +90,36 @@ public class HomeScreen extends JPanel {
             }
         };
         groupTable.setRowHeight(32);
-        
+
         JLabel hintLabel = new JLabel("※ 소모임을 더블클릭하면 상세조회할 수 있습니다.");
         hintLabel.setForeground(Color.GRAY);
         hintLabel.setFont(hintLabel.getFont().deriveFont(Font.ITALIC, 12f));
         centerPanel.add(hintLabel);
 
-        JScrollPane tableScroll = new JScrollPane(groupTable);
+        // --- 소모임 목록: 스크롤, 6행 보이게 ---
+        int groupHeaderHeight = groupTable.getTableHeader().getPreferredSize().height;
+        Dimension groupTableSize = new Dimension(780, 5 * 32 + groupHeaderHeight);
+        groupTable.setPreferredScrollableViewportSize(groupTableSize);
 
-        centerPanel.add(Box.createVerticalStrut(20));
+        JScrollPane tableScroll = new JScrollPane(groupTable);
         tableScroll.setBorder(BorderFactory.createTitledBorder("소모임 목록"));
-        tableScroll.setPreferredSize(new Dimension(780, 200));
+        centerPanel.add(Box.createVerticalStrut(20));
         centerPanel.add(tableScroll);
 
         centerPanel.add(Box.createVerticalStrut(20));
 
-        JScrollPane top5Scroll = new JScrollPane(top5Table);
-        top5Scroll.setBorder(BorderFactory.createTitledBorder("\nTop 5 활발한 소모임"));
-        top5Scroll.setPreferredSize(new Dimension(780, 200));
-        centerPanel.add(top5Scroll);
+        // --- Top 5 활발한 소모임: 스크롤 없이 5행만 보이게 ---
+        top5Table.setRowHeight(32);
+        int top5HeaderHeight = top5Table.getTableHeader().getPreferredSize().height;
+        Dimension top5TableSize = new Dimension(780, 5 * 32 + top5HeaderHeight);
+        top5Table.setPreferredScrollableViewportSize(top5TableSize);
+        top5Table.setPreferredSize(top5TableSize);
+
+        JPanel top5Panel = new JPanel(new BorderLayout());
+        top5Panel.setBorder(BorderFactory.createTitledBorder("Top 5 활발한 소모임"));
+        top5Panel.add(top5Table.getTableHeader(), BorderLayout.NORTH);
+        top5Panel.add(top5Table, BorderLayout.CENTER);
+        centerPanel.add(top5Panel);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -149,38 +160,8 @@ public class HomeScreen extends JPanel {
             }
         });
 
-
         refreshTables();
-        /*
-        groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                int row = groupTable.rowAtPoint(evt.getPoint());
-                if (row >= 0 && evt.getClickCount() == 2) {
-                    String title = (String) groupTable.getValueAt(row, 1);
-                    int confirm = JOptionPane.showConfirmDialog(
-                            HomeScreen.this,
-                            "'" + title + "' 소모임을 스크랩하시겠습니까?",
-                            "스크랩 확인",
-                            JOptionPane.YES_NO_OPTION
-                    );
-
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        int classId = Integer.parseInt((String) groupTable.getValueAt(row, 0));
-                        boolean success = scrapService.addScrap(Session.loggedInUserId, classId);
-                        if (success) {
-                            JOptionPane.showMessageDialog(HomeScreen.this, "스크랩이 완료되었습니다.");
-                        } else {
-                            JOptionPane.showMessageDialog(HomeScreen.this, "이미 스크랩했거나 실패했습니다.");
-                        }
-                    }
-                }
-            }
-        });
-    */
-
     }
-
     private void refreshTables() {
         DefaultTableModel mainModel = new DefaultTableModel() {
             @Override
@@ -201,9 +182,6 @@ public class HomeScreen extends JPanel {
         top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
         service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
 
-        // groupTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        // top5Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
         groupTable.setModel(mainModel);
         groupTable.setRowHeight(32);
         groupTable.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -212,10 +190,11 @@ public class HomeScreen extends JPanel {
         groupTable.getColumnModel().getColumn(4).setPreferredWidth(60);
 
         top5Table.setModel(top5Model);
-        groupTable.setRowHeight(32);
+        top5Table.setRowHeight(32);
         top5Table.getColumnModel().getColumn(0).setPreferredWidth(40);
         top5Table.getColumnModel().getColumn(1).setPreferredWidth(150);
         top5Table.getColumnModel().getColumn(2).setPreferredWidth(80);
         top5Table.getColumnModel().getColumn(3).setPreferredWidth(400);
+
     }
 }

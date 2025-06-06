@@ -127,6 +127,7 @@ public class MyGroupDetailScreen extends JPanel {
             public boolean isCellEditable(int row, int col) { return false; }
         };
         memberTable = new JTable(model);
+        memberTable.setRowHeight(32);
 
         // 참여자 데이터 불러오기
         List<Map<String, Object>> members = new UserDAO().getParticipantsByClassId(classId);

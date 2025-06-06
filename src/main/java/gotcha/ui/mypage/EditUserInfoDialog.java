@@ -52,5 +52,6 @@ public class EditUserInfoDialog extends JDialog {
         cancelBtn.addActionListener(e -> dispose());
 
         setLocationRelativeTo(null);
+        pack();
     }
 }
