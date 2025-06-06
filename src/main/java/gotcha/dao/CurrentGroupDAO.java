@@ -59,7 +59,7 @@ public class CurrentGroupDAO {
                         "  AND c.host_id != ?\n" +
                         "  AND p.deleted_at IS NULL\n" +
                         "  AND c.deleted_at IS NULL\n" +
-                        "  AND c.status = '진행중';";
+                        "  AND (c.status = '진행중' or c.status = '모집중')\n;";
 
         try (
             Connection conn = DBConnector.getConnection();
