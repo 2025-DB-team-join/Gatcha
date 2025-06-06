@@ -1,34 +1,19 @@
 package gotcha.service;
 
-import gotcha.common.DBConnector;
-import java.sql.*;
+import gotcha.dao.GroupDAO;
+
+import java.sql.Timestamp;
 
 public class JoinService {
 
+    private final GroupDAO dao = new GroupDAO();
+
     public boolean isAlreadyJoined(int userId, int classId) {
-        String sql = "SELECT COUNT(*) FROM participation WHERE user_id = ? AND class_id = ?";
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, classId);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next() && rs.getInt(1) > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return dao.isAlreadyJoined(userId, classId);
     }
 
     public int joinClass(int userId, int classId) {
-        String sql = "INSERT INTO participation(user_id, class_id) VALUES (?, ?)";
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, classId);
-            return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        return dao.insertParticipation(userId, classId, now);
     }
 }

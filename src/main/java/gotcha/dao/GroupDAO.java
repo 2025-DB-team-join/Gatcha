@@ -310,5 +310,33 @@ public class GroupDAO {
 	        return false;
 	    }
 	}
+
+    public boolean isAlreadyJoined(int userId, int classId) {
+        String sql = "SELECT COUNT(*) FROM participation WHERE user_id = ? AND class_id = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, classId);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int insertParticipation(int userId, int classId, Timestamp joinedAt) {
+        String sql = "INSERT INTO participation(user_id, class_id, joined_at) VALUES (?, ?, ?)";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, classId);
+            pstmt.setTimestamp(3, joinedAt);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
 
