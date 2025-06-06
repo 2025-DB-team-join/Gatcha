@@ -193,8 +193,6 @@ public class HomeScreen extends JPanel {
         groupTable.getColumnModel().getColumn(0).setMaxWidth(0);
         groupTable.getColumnModel().getColumn(0).setWidth(0);
 
-        service.loadGroupDetails(mainModel, searchField.getText(), (String) categoryToggle.getSelectedItem());
-
         DefaultTableModel top5Model = new DefaultTableModel();
         top5Model.setColumnIdentifiers(new String[]{"순위", "소모임 이름", "출석률", "모임 설명"});
         service.loadGroupAttendance(top5Model, searchField.getText(), (String) categoryToggle.getSelectedItem());
