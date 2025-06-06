@@ -9,61 +9,59 @@ import java.util.Vector;
 
 public class GroupDAO {
 
-    public boolean insertGroup(
-            int hostId,
-            String title,
-            String context,
-            int maxParticipants,
-            String mainRegion,
-            String category,
-            Timestamp recruitDeadline,
-            String status
-    ) {
-        String sql = "INSERT INTO class " +
-                "(host_id, title, context, max_participants, main_region, category, recruit_deadline, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	public int insertGroup(
+	        int hostId,
+	        String title,
+	        String context,
+	        int maxParticipants,
+	        String mainRegion,
+	        String category,
+	        Timestamp recruitDeadline,
+	        String status
+	) {
+	    String sql = "INSERT INTO class " +
+	            "(host_id, title, context, max_participants, main_region, category, recruit_deadline, status) " +
+	            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+	    try (Connection conn = DBConnector.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setInt(1, hostId);
-            stmt.setString(2, title);
-            stmt.setString(3, context);
-            stmt.setInt(4, maxParticipants);
-            stmt.setString(5, mainRegion);
-            stmt.setString(6, category);
+	        stmt.setInt(1, hostId);
+	        stmt.setString(2, title);
+	        stmt.setString(3, context);
+	        stmt.setInt(4, maxParticipants);
+	        stmt.setString(5, mainRegion);
+	        stmt.setString(6, category);
+	        if (recruitDeadline != null) {
+	            stmt.setTimestamp(7, recruitDeadline);
+	        } else {
+	            stmt.setNull(7, Types.TIMESTAMP);
+	        }
+	        stmt.setString(8, status);
 
-            if (recruitDeadline != null) {
-                stmt.setTimestamp(7, recruitDeadline);
-            } else {
-                stmt.setNull(7, Types.TIMESTAMP);
-            }
-            stmt.setString(8, status);
+	        int affected = stmt.executeUpdate();
+	        if (affected == 0) return -1;
 
-            int affected = stmt.executeUpdate();
-            if (affected == 0) return false;
+	        ResultSet keys = stmt.getGeneratedKeys();
+	        if (keys.next()) {
+	            int classId = keys.getInt(1);
 
-            // 소모임 ID 가져오기
-            ResultSet keys = stmt.getGeneratedKeys();
-            if (keys.next()) {
-                int classId = keys.getInt(1);
+	            // participation 자동 등록
+	            String participationSql = "INSERT INTO participation (user_id, class_id, joined_at) VALUES (?, ?, CURDATE())";
+	            try (PreparedStatement ps2 = conn.prepareStatement(participationSql)) {
+	                ps2.setInt(1, hostId);
+	                ps2.setInt(2, classId);
+	                ps2.executeUpdate();
+	            }
 
-                // participation에 hostId 삽입
-                String participationSql = "INSERT INTO participation (user_id, class_id, joined_at) VALUES (?, ?, CURDATE())";
-                try (PreparedStatement ps2 = conn.prepareStatement(participationSql)) {
-                    ps2.setInt(1, hostId);
-                    ps2.setInt(2, classId);
-                    ps2.executeUpdate();
-                }
+	            return classId;
+	        }
 
-
-                return true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return -1;
+	}
 
 
     public boolean updateGroup(int classId, String title, String context, int maxParticipants, String mainRegion,
