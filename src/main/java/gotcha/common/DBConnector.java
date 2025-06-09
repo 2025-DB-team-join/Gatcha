@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DBConnector {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/community?logger=com.mysql.cj.log.StandardLogger";
+    private static final String URL = "jdbc:mysql://localhost:3306/community?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String USER = System.getenv("DB_USER");
     private static final String PASSWORD = System.getenv("DB_PASSWORD");
 
