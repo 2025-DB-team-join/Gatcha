@@ -210,6 +210,7 @@ public class AuthScreen extends JPanel {
                     int userId = userService.getUserIdByEmail(email);
 
                     if (userId != -1) {
+                        Session.loggedInUserId = userId;
                         Main.setScreen(new TagSelectionScreen(userId)); // 태그 선택 화면으로 이동
                     } else {
                         JOptionPane.showMessageDialog(this, "user 정보를 찾을 수 없습니다.");
