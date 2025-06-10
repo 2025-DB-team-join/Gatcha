@@ -11,7 +11,6 @@ import java.util.List;
 public class UserReviewScreen extends JDialog {
     public UserReviewScreen(JFrame parent, int userId) {
         super(parent, "나에 대한 리뷰 보기", true);
-        setSize(500, 400);
         setLocationRelativeTo(parent);
 
         UserReviewService service = new UserReviewService();
@@ -26,6 +25,9 @@ public class UserReviewScreen extends JDialog {
             model.addRow(new Object[]{r.getClassTitle(), r.getComment()});
         }
         JTable table = new JTable(model);
+        table.setRowHeight(32);
+        table.getColumnModel().getColumn(0).setPreferredWidth(300);
+        table.getColumnModel().getColumn(1).setPreferredWidth(450);
         JScrollPane scroll = new JScrollPane(table);
 
         add(scroll, BorderLayout.CENTER);
@@ -36,5 +38,9 @@ public class UserReviewScreen extends JDialog {
         btnPanel.add(closeBtn);
 
         add(btnPanel, BorderLayout.SOUTH);
+        pack();
+        setSize(900, 400);
+        setResizable(false);
+        setLocationRelativeTo(parent);
     }
 }

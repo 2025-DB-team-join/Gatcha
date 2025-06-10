@@ -182,7 +182,7 @@ private final UserRatingService ratingService = new UserRatingService();
 
         deleteAccountBtn.addActionListener(e -> new DeleteAccountDialog(userId).setVisible(true));
         backBtn.addActionListener(e -> gotcha.Main.setScreen(new HomeScreen()));
-        setPreferredSize(new Dimension(850, 700));
+        setPreferredSize(new Dimension(1100, 700));
 
     }
 

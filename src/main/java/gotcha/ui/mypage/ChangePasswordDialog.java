@@ -51,5 +51,6 @@ public class ChangePasswordDialog extends JDialog {
         cancelBtn.addActionListener(e -> dispose());
 
         setLocationRelativeTo(null);
+        pack();
     }
 }

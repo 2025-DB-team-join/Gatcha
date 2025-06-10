@@ -32,13 +32,8 @@ public class ClassBoardScreen extends JPanel {
 
         String classTitle = boardService.getClassTitleById(classId);
 
-        // 상단
-        JButton backButton = new JButton("← 뒤로가기");
-        backButton.setFont(FontLoader.loadCustomFont(14f));
-        backButton.addActionListener(e -> Main.setScreen(new BoardScreen()));
-
+        // 상단 (뒤로가기 버튼 제거)
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(backButton, BorderLayout.WEST);
 
         JLabel titleLabel = new JLabel("📋 " + classTitle + " 게시판");
         titleLabel.setFont(FontLoader.loadCustomFont(22f));
@@ -48,13 +43,8 @@ public class ClassBoardScreen extends JPanel {
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         JButton refreshButton = new JButton("새로고침");
         refreshButton.setFont(FontLoader.loadCustomFont(14f));
-
-        refreshButton.addActionListener(e -> {
-            loadAllPosts(); // 게시글 다시 불러오기
-        });
-
+        refreshButton.addActionListener(e -> loadAllPosts());
         rightButtonPanel.add(refreshButton);
-        topPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         JButton writeButton = new JButton("게시글 작성");
         writeButton.setFont(FontLoader.loadCustomFont(14f));
@@ -82,6 +72,7 @@ public class ClassBoardScreen extends JPanel {
             }
         };
         postTable = new JTable(tableModel);
+        postTable.setRowHeight(32);
         postTable.getColumnModel().getColumn(0).setMinWidth(0);
         postTable.getColumnModel().getColumn(0).setMaxWidth(0);
         postTable.getColumnModel().getColumn(0).setWidth(0);
@@ -127,6 +118,16 @@ public class ClassBoardScreen extends JPanel {
                 updatePosts();
             }
         });
+
+        // --- 우측 하단 뒤로가기 버튼 패널 추가 ---
+        JButton backButton = new JButton("← 뒤로가기");
+        backButton.setFont(FontLoader.loadCustomFont(14f));
+        backButton.addActionListener(e -> Main.setScreen(new BoardScreen()));
+
+        JPanel bottomButtonPanel = new JPanel(new BorderLayout());
+        bottomButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        bottomButtonPanel.add(backButton, BorderLayout.LINE_END);
+        add(bottomButtonPanel, BorderLayout.PAGE_END);
 
         loadAllPosts();  // 전체 불러오고 첫 페이지 로드
     }
